@@ -4,7 +4,8 @@
 This is Yona, a script I use to help automate simple terminal tasks, mainly:
 - running/compiling the current file I'm editing
 - finding the top-level of a project and running the relevant build script
-it is designed primarily just to be hooked up to an editor's terminal emulator.
+
+It is designed primarily just to be hooked up to an editor's terminal emulator.
 
 ---
 
