@@ -18,11 +18,6 @@ It is designed primarily just to be hooked up to an editor's terminal emulator.
 
 ### Usage
 
-You'll notice in the repo there are a few different files called yona. This is
-deliberate; since the idea is just a simple script, I've tried writing it in a
-few different languages. The one I've actually used the most is the powershell
-version, so we'll look at that.
-
 - **Running/Compiling**
 	```
 	yona run --path $PATH_TO_FILE --name $FILENAME --ext $FILE_EXTENSION
