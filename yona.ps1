@@ -42,7 +42,7 @@ Function Get-YonaInfo {
 
 Function Invoke-Grep {
 	Invoke-TopLevel
-	Invoke-Expression "rg $token"
+	Invoke-Expression "rg `"$token`""
 }
 
 Function Invoke-Run {
