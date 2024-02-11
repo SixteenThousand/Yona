@@ -1,9 +1,9 @@
 Param(
-	$action,
-	$path,
+	[Parameter(Position=0)]$action,
+	# either the absolute path of the file, or the string used by grep
+	[Parameter(Position=1)]$object,
 	$name,
-	$extension,
-	$token
+	$extension
 )
 
 
@@ -42,27 +42,28 @@ Function Get-YonaInfo {
 
 Function Invoke-Grep {
 	Invoke-TopLevel
-	Invoke-Expression "rg `"$token`""
+	Invoke-Expression "rg `"$object`""
 }
 
 Function Invoke-Run {
 	echo "`r`nPreparing to run...`r`n"
-	cd $path
+	cd $object
 	if($extension -eq "java") {
 		Invoke-Expression "java $name"
 		return
 	}
-	if(Test-Path "$path\$name`.exe") {
+	if(Test-Path "$object\$name`.exe") {
 		Invoke-Expression ".\$name"
 		return
 	}
 	$runners = @{
+		go = "go run";
 		hs = "runghc";
 		js = "node";
 		lisp = "sbcl --script";
 		php = "php";
+		ps1 = "pwsh";
 		py = "python";
-		go = "go run";
 	}
 	$runner = $runners.$extension
 	Invoke-Expression "$runner $name`.$extension"
@@ -71,18 +72,18 @@ Function Invoke-Run {
 
 Function Invoke-Compile {
 	echo "`r`nPreparing to compile...`r`n"
-	cd $path
+	cd $object
 	if($extension -eq "c") {
 		Invoke-Expression "gcc $name`.$extension -o $name"
 		return
 	}
 	$compilers = @{
 		cs = "csc";
+		go = "go build"
 		hs = "ghc -Wno-tabs";
 		java = "javac -Xlint:unchecked";
 		rs = "rustc -A dead-code";
 		tex = "pdflatex";
-		go = "go build"
 	}
 	$compiler = $compilers.$extension
 	Invoke-Expression "$compiler $name`.$extension"
