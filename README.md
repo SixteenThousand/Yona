@@ -41,9 +41,9 @@ It is designed primarily just to be hooked up to an editor's terminal emulator.
 	```
 	from anywhere in the project.<br/>
 	Naturally this means that you can't call your own commands any of:
-		- init
-		- run
-		- compile.
+	- init
+	- run
+	- compile.
 
 That's it, really.
 
