@@ -20,10 +20,10 @@ It is designed primarily just to be hooked up to an editor's terminal emulator.
 
 - **Running/Compiling**
 	```
-	yona run --path $PATH_TO_FILE --name $FILENAME --ext $FILE_EXTENSION
-	yona compile --path $PATH_TO_FILE --name $FILENAME --ext $FILE_EXTENSION
+	yona run -path PATH_TO_FILE -name FILENAME -ext FILE_EXTENSION
+	yona compile -path PATH_TO_FILE -name FILENAME -ext FILE_EXTENSION
 	```
-	Note that `$FILENAME` does *not* include file extensions.
+	Note that `FILENAME` does *not* include file extensions.
 
 - **Running your own commands at the top-level of a project**
 	```
@@ -34,7 +34,7 @@ It is designed primarily just to be hooked up to an editor's terminal emulator.
 	```
 	show;;ls
 	```
-	This is just here as demonstation of the format; `$ALIAS_NAME;;$COMMAND`.
+	This is just here as demonstation of the format; `ALIAS_NAME;;COMMAND`.
 	To run this command, just run
 	```
 	yona show
