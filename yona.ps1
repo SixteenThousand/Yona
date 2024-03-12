@@ -47,11 +47,7 @@ Function Invoke-Grep {
 
 Function Invoke-Run {
 	echo "`r`nPreparing to run...`r`n"
-	cd $object
-	if($extension -eq "java") {
-		Invoke-Expression "java $name"
-		return
-	}
+	cd $object 
 	if(Test-Path "$object\$name`.exe") {
 		Invoke-Expression ".\$name"
 		return
@@ -65,8 +61,18 @@ Function Invoke-Run {
 		ps1 = "pwsh";
 		py = "python";
 	}
-	$runner = $runners.$extension
-	Invoke-Expression "$runner $name`.$extension"
+    # run commands that need the "name part" of the filename, i.e. the filename
+    # sans extension. The hash (#) will be replaced by the name part.
+    $specialRunners = @{
+        java = "java #";
+        ts = "node #.js";
+    }
+    if($runners.Contains($extension)) {
+        $runner = $runners.$extension
+        Invoke-Expression "$runner $name`.$extension"
+    } elseif($specialRunners.Contains($extension)) {
+        Invoke-Expression $($specialRunners.$extension -creplace "#",$name)
+    }
 	echo "`r`nIt might have run!"
 }
 
@@ -83,7 +89,8 @@ Function Invoke-Compile {
 		hs = "ghc -Wno-tabs";
 		java = "javac -Xlint:unchecked";
 		rs = "rustc -A dead-code";
-		tex = "pdflatex";
+		tex = "pdflatex -aux-directory='tex-logs'";
+        ts = "tsc"
 	}
 	$compiler = $compilers.$extension
 	Invoke-Expression "$compiler $name`.$extension"
