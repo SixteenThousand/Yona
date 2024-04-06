@@ -57,9 +57,11 @@ Function Invoke-Run {
 		hs = "runghc";
 		js = "node";
 		lisp = "sbcl --script";
+        mjs = "node";
 		php = "php";
 		ps1 = "pwsh";
 		py = "python";
+        rb = "ruby";
 	}
     # run commands that need the "name part" of the filename, i.e. the filename
     # sans extension. The hash (#) will be replaced by the name part.
@@ -90,7 +92,7 @@ Function Invoke-Compile {
 		java = "javac -Xlint:unchecked";
 		rs = "rustc -A dead-code";
 		tex = "pdflatex -aux-directory='tex-logs'";
-        ts = "tsc"
+        ts = "tsc --target esnext"
 	}
 	$compiler = $compilers.$extension
 	Invoke-Expression "$compiler $name`.$extension"
