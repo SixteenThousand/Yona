@@ -7,6 +7,12 @@ This is Yona, a script I use to help automate simple terminal tasks, mainly:
 
 It is designed primarily just to be hooked up to an editor's terminal emulator.
 
+**UPDATE** Bash version coming soon! Watch this space!
+I will likely take this opportunity to also improve Yona, changing a lot of 
+basic way in which it works. I will likely port those changes back the 
+powershell version, meaning there will be breaking changes. You will find 
+the current version tagged as v0.1.0.
+
 ---
 
 ### Requirements
