@@ -1,0 +1,182 @@
+#!/bin/bash
+# Bash version of yona
+
+YONA_FILE=".yona"
+
+# the filetypes supported by yona (single file mode)
+# note that in the "SPECIAL" arrays, %< will be substituted for the name
+# part and % will be substituted for the filename
+declare -A COMPILERS
+COMPILERS[cs]="csc"
+COMPILERS[go]="go build"
+COMPILERS[hs]="ghc -Wno-tabs"
+COMPILERS[java]="javac -Xlint:unchecked"
+COMPILERS[rs]="rustc -A dead-code"
+COMPILERS[tex]="pdflatex -aux-directory='tex-logs'"
+COMPILERS[ts]="tsc --target esnext"
+
+declare -A SPECIAL_COMPILERS
+SPECIAL_COMPILERS[c]="gcc -o %< %"
+
+declare -A RUNNERS
+RUNNERS[go]="go run"
+RUNNERS[hs]="runghc"
+RUNNERS[js]="node"
+RUNNERS[lisp]="sbcl --script"
+RUNNERS[mjs]="node"
+RUNNERS[php]="php"
+RUNNERS[ps1]="pwsh"
+RUNNERS[py]="python"
+RUNNERS[rb]="ruby"
+
+declare -A SPECIAL_RUNNERS
+SPECIAL_RUNNERS[java]="java %<"
+SPECIAL_RUNNERS[ts]="node %<.js"
+
+
+print-help () {
+echo -e "\
+Yona: the script that stands in the blush of the build v0.0.1 - bash version
+Usage:
+    yona [ -s | --single-file] [ run | compile ] FILEPATH
+    yona COMMAND
+SINGLE FILE MODE
+yona [ -s | --single-file ] [ run | compile ] FILEPATH
+    tries to compile/run FILEPATH as best it can based off of the extension 
+    of FILEPATH. Will run an executable with the same \"name part\" (i.e. 
+    name without extension) first if possible.
+yona COMMAND
+    runs a command specified by COMMAND at the topmost level of the project 
+    that the pwd is in, if any. Specifically, yona looks for a file called 
+    \".yona\", which will have contents of the form below:
+        build = BUILD_COMMAND
+        test = TEST_COMMAND
+        ...
+   yona will then see if any line in this file has COMMAND before the equals 
+   sign, and if so run the command to the right of the equals sign at the 
+   directory where the .yona file was found.
+   yona will first check if the pwd is in a git repository, and if so look 
+   for .yona there. If that fails, it will look through the ancestor of pwd 
+   until it either finds a .yona file or reaches root.
+"
+}
+
+
+print-version () {
+echo -e "Yona of the build v0.0.1 - bash version"
+}
+
+
+# get file extension, name, name part, & parent directory
+get-fileinfo () {
+PARENT=$(dirname $1)
+NAME=$(basename $1)
+NAME_PART=${NAME%%.*}
+EXT=${NAME##*.}
+}
+
+
+# Does its level best to "run" the given file, whatever that may mean for that 
+# file. Mostly it will just choose the right interpreter for the job (python, 
+# lua, etc.), but if there is another file whose name is the "name part" of 
+# the file (i.e., the file name with any extension removed) which is 
+# executable, it will try to run that instead.
+# Parameters:
+#     $1 = the absolute path to the file
+run-file () {
+echo -e "Preparing to run . . .\n\n"
+get-fileinfo $1
+cd $PARENT
+if [ -x $NAME ]; then
+    ./$NAME
+    return
+fi
+if [ -n ${RUNNERS[$EXT]} ]; then
+    ${RUNNERS[$EXT]} $NAME
+    return
+fi
+if [ -n ${SPECIAL_RUNNERS[$EXT]} ]; then
+    # replace %< & % with name part & name, and then run it
+    TO_RUN=${SPECIAL_RUNNERS[$EXT]/%</$NAME_PART}
+    ${TO_RUN/%/$NAME}
+    return
+fi
+echo -e "\n\nProgram might have run!"
+}
+
+# Compiles the given file with the relevant program based on the file's 
+# extension.
+# Parameters:
+#     $1 = the absolute path to the file
+compile-file () {
+echo -e "Preparing to compile . . .\n\n"
+get-fileinfo $1
+cd $PARENT
+if [ -x $NAME ]; then
+    ./$NAME
+    return
+fi
+if [ -n ${COMPILERS[$EXT]} ]; then
+    ${COMPILERS[$EXT]} $NAME
+    return
+fi
+if [ -n ${SPECIAL_COMPILERS[$EXT]} ]; then
+    # replace %< & % with name part & name, and then run it
+    TO_RUN=${SPECIAL_COMPILERS[$EXT]/%</$NAME_PART}
+    ${TO_RUN/%/$NAME}
+    return
+fi
+echo -e "\n\nProgram might have compiled!"
+}
+
+# Runs a given command at project root. Looks for the git root first, then if 
+# that fails looks for a file called '.yona' in the ancestors of pwd.
+# Parameters:
+#     $1 = name of command given in .yona file
+#     ${2,3,...} = arguments to pass to the command in the .yona file
+project-command () {
+LINE=$(grep "^$1 = " $YONA_FILE)
+if [ -z $LINE ]; then
+    echo "Yona Error: Undefined project command!"
+    return
+fi
+${$LINE#*= }
+}
+
+# calls the project-command function, if it can find a .yona file
+project-mode () {
+if PROJ_ROOT=$(git rev-parse --show-toplevel) && test -f "$PROJ_ROOT/$YONA_FILE"; then
+    PARENT=$(dirname)
+    cd PROJ_ROOT
+    if [ -e .yona ]; then
+        project-command $@
+        return
+    fi
+    cd $PARENT
+    until [[ $(pwd) == / ]]; do
+        if [ -e .yona ]; then
+            project-command $@
+            return
+        fi
+        cd ..
+    done
+    echo "Yona Error: No .yona file!"
+}
+
+
+# calls the run-file or compile-file functions
+single-file-mode () {
+case $1 in
+    run) run-file $2;;
+    compile) compile-file $2;;
+    *) echo -e "Invalid file command!\nUse either run or compile.";;
+esac
+}
+
+
+case $1 in
+    -s | --single-file) single-file-mode $2 $3;;
+    -h | --help) print-help;;
+    -v | --version) print-version;;
+    *) project-mode $1;;
+esac
