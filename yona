@@ -145,14 +145,14 @@ ${$LINE#*= }
 
 # calls the project-command function, if it can find a .yona file
 project-mode () {
-if PROJ_ROOT=$(git rev-parse --show-toplevel) && test -f "$PROJ_ROOT/$YONA_FILE"; then
-    PARENT=$(dirname)
+PROJ_ROOT=$(git rev-parse --show-toplevel)
+if [ -n PROJ_ROOT ]; then
     cd PROJ_ROOT
     if [ -e .yona ]; then
         project-command $@
         return
     fi
-    cd $PARENT
+else
     until [[ $(pwd) == / ]]; do
         if [ -e .yona ]; then
             project-command $@
@@ -161,6 +161,7 @@ if PROJ_ROOT=$(git rev-parse --show-toplevel) && test -f "$PROJ_ROOT/$YONA_FILE"
         cd ..
     done
     echo "Yona Error: No .yona file!"
+fi
 }
 
 
