@@ -3,6 +3,10 @@
 
 YONA_FILE=".yona"
 
+# messages to display once the single file mode operations are complete
+COMPILE_END_MSG="\n\nCompiled! Maybe!"
+RUN_END_MSG="\n\nProgram Run! Perhaps! Maybe! Possibly!"
+
 # the filetypes supported by yona (single file mode)
 # note that in the "SPECIAL" arrays, %< will be substituted for the name
 # part and % will be substituted for the filename
@@ -84,24 +88,26 @@ EXT=${NAME##*.}
 # Parameters:
 #     $1 = the absolute path to the file
 run-file () {
-echo -e "Preparing to run . . .\n\n"
+echo -e "\nPreparing to run . . .\n\n"
 get-fileinfo $1
 cd $PARENT
 if [[ -x $NAME_PART ]]; then
     ./$NAME_PART
+    echo -e $RUN_END_MSG
     return
 fi
 if [[ -n ${RUNNERS[$EXT]} ]]; then
     eval "${RUNNERS[$EXT]} $NAME"
+    echo -e $RUN_END_MSG
     return
 fi
 if [[ -n ${SPECIAL_RUNNERS[$EXT]} ]]; then
     # replace %< & % with name part & name, and then run it
     TO_RUN=${SPECIAL_RUNNERS[$EXT]/\%\</$NAME_PART}
     eval "${TO_RUN/\%/$NAME}"
+    echo -e $RUN_END_MSG
     return
 fi
-echo -e "\n\nProgram might have run!"
 }
 
 # Compiles the given file with the relevant program based on the file's 
@@ -109,24 +115,26 @@ echo -e "\n\nProgram might have run!"
 # Parameters:
 #     $1 = the absolute path to the file
 compile-file () {
-echo -e "Preparing to compile . . .\n\n"
+echo -e "\nPreparing to compile . . .\n\n"
 get-fileinfo $1
 cd $PARENT
 if [[ -x $NAME_PART ]]; then
     ./$NAME_PART
+    echo -e $COMPILE_END_MSG
     return
 fi
 if [[ -n "${COMPILERS[$EXT]}" ]]; then
     eval "${COMPILERS[$EXT]} $NAME"
+    echo -e $COMPILE_END_MSG
     return
 fi
 if [[ -n ${SPECIAL_COMPILERS[$EXT]} ]]; then
     # replace %< & % with name part & name, and then run it
     TO_RUN=${SPECIAL_COMPILERS[$EXT]/\%\</$NAME_PART}
     eval "${TO_RUN/\%/$NAME}"
+    echo -e $COMPILE_END_MSG
     return
 fi
-echo -e "\n\nProgram might have compiled!"
 }
 
 # Runs a given command at project root. Looks for the git root first, then if 
