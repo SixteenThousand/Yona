@@ -92,13 +92,13 @@ if [ -x $NAME ]; then
     return
 fi
 if [ -n ${RUNNERS[$EXT]} ]; then
-    ${RUNNERS[$EXT]} $NAME
+    eval "${RUNNERS[$EXT]} $NAME"
     return
 fi
 if [ -n ${SPECIAL_RUNNERS[$EXT]} ]; then
     # replace %< & % with name part & name, and then run it
     TO_RUN=${SPECIAL_RUNNERS[$EXT]/%</$NAME_PART}
-    ${TO_RUN/%/$NAME}
+    eval "${TO_RUN/%/$NAME}"
     return
 fi
 echo -e "\n\nProgram might have run!"
@@ -117,13 +117,14 @@ if [ -x $NAME ]; then
     return
 fi
 if [ -n ${COMPILERS[$EXT]} ]; then
-    ${COMPILERS[$EXT]} $NAME
+    echo "Debug: We got here!"
+    eval "${COMPILERS[$EXT]} $NAME"
     return
 fi
 if [ -n ${SPECIAL_COMPILERS[$EXT]} ]; then
     # replace %< & % with name part & name, and then run it
     TO_RUN=${SPECIAL_COMPILERS[$EXT]/%</$NAME_PART}
-    ${TO_RUN/%/$NAME}
+    eval "${TO_RUN/%/$NAME}"
     return
 fi
 echo -e "\n\nProgram might have compiled!"
@@ -136,32 +137,31 @@ echo -e "\n\nProgram might have compiled!"
 #     ${2,3,...} = arguments to pass to the command in the .yona file
 project-command () {
 LINE=$(grep "^$1 = " $YONA_FILE)
-if [ -z $LINE ]; then
+if [ -z "$LINE" ]; then
     echo "Yona Error: Undefined project command!"
     return
 fi
-${$LINE#*= }
+ eval "${LINE#*= }"
 }
 
 # calls the project-command function, if it can find a .yona file
 project-mode () {
 PROJ_ROOT=$(git rev-parse --show-toplevel)
-if [ -n PROJ_ROOT ]; then
-    cd PROJ_ROOT
+if [ -n "$PROJ_ROOT" ]; then
+    cd $PROJ_ROOT
     if [ -e .yona ]; then
         project-command $@
         return
     fi
-else
-    until [[ $(pwd) == / ]]; do
-        if [ -e .yona ]; then
-            project-command $@
-            return
-        fi
-        cd ..
-    done
-    echo "Yona Error: No .yona file!"
 fi
+until [[ $(pwd) == / ]]; do
+    if [ -e .yona ]; then
+        project-command $@
+        return
+    fi
+    cd ..
+done
+echo "Yona Error: No .yona file!"
 }
 
 
@@ -179,5 +179,5 @@ case $1 in
     -s | --single-file) single-file-mode $2 $3;;
     -h | --help) print-help;;
     -v | --version) print-version;;
-    *) project-mode $1;;
+    *) project-mode $@;;
 esac
