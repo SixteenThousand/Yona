@@ -146,7 +146,7 @@ fi
 
 # calls the project-command function, if it can find a .yona file
 project-mode () {
-PROJ_ROOT=$(git rev-parse --show-toplevel)
+PROJ_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 if [ -n "$PROJ_ROOT" ]; then
     cd $PROJ_ROOT
     if [ -e .yona ]; then
