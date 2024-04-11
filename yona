@@ -44,6 +44,7 @@ Yona: the script that stands in the blush of the build v0.0.1 - bash version
 Usage:
     yona [ -s | --single-file] [ run | compile ] FILEPATH
     yona COMMAND
+    yona [ sh | shell ] SHELL_COMMAND
 SINGLE FILE MODE
 yona [ -s | --single-file ] [ run | compile ] FILEPATH
     tries to compile/run FILEPATH as best it can based off of the extension 
@@ -62,6 +63,12 @@ yona COMMAND
    yona will first check if the pwd is in a git repository, and if so look 
    for .yona there. If that fails, it will look through the ancestor of pwd 
    until it either finds a .yona file or reaches root.
+yona [ sh | shell ] SHELL_COMMAND
+    Runs SHELL_COMMAND at project root (see above). Overrides the above 
+    syntax if there is a conflict (i.e. you make a yona command called 
+    "shell" or "sh"). So, for example:
+        yona sh grep \"fish\"
+    would find the project root and then run \`grep \"fish\"\` there.
 "
 }
 
@@ -139,16 +146,26 @@ fi
 
 # Runs a given command at project root. Looks for the git root first, then if 
 # that fails looks for a file called '.yona' in the ancestors of pwd.
+# Looks for command with the name of $1 in .yona, unless that command is
+# shell,sh, etc., in which case it just passes all other arguments asa
+# command to bash
 # Parameters:
 #     $1 = name of command given in .yona file
 #     ${2,3,...} = arguments to pass to the command in the .yona file
 project-command () {
-LINE=$(grep "^$1 = " $YONA_FILE)
-if [[ -z "$LINE" ]]; then
-    echo "Yona Error: Undefined project command!"
-    return
-fi
- eval "${LINE#*= }"
+case $1 in
+    sh | shell)
+        shift 1
+        eval "$@"
+        return;;
+    *) 
+        LINE=$(grep "^$1 = " $YONA_FILE)
+        if [[ -z "$LINE" ]]; then
+            echo "Yona Error: Undefined project command!"
+            return
+        fi
+         eval "${LINE#*= }";;
+ esac
 }
 
 # calls the project-command function, if it can find a .yona file
