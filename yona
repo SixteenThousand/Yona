@@ -87,18 +87,18 @@ run-file () {
 echo -e "Preparing to run . . .\n\n"
 get-fileinfo $1
 cd $PARENT
-if [ -x $NAME ]; then
-    ./$NAME
+if [[ -x $NAME_PART ]]; then
+    ./$NAME_PART
     return
 fi
-if [ -n ${RUNNERS[$EXT]} ]; then
+if [[ -n ${RUNNERS[$EXT]} ]]; then
     eval "${RUNNERS[$EXT]} $NAME"
     return
 fi
-if [ -n ${SPECIAL_RUNNERS[$EXT]} ]; then
+if [[ -n ${SPECIAL_RUNNERS[$EXT]} ]]; then
     # replace %< & % with name part & name, and then run it
-    TO_RUN=${SPECIAL_RUNNERS[$EXT]/%</$NAME_PART}
-    eval "${TO_RUN/%/$NAME}"
+    TO_RUN=${SPECIAL_RUNNERS[$EXT]/\%\</$NAME_PART}
+    eval "${TO_RUN/\%/$NAME}"
     return
 fi
 echo -e "\n\nProgram might have run!"
@@ -112,19 +112,18 @@ compile-file () {
 echo -e "Preparing to compile . . .\n\n"
 get-fileinfo $1
 cd $PARENT
-if [ -x $NAME ]; then
-    ./$NAME
+if [[ -x $NAME_PART ]]; then
+    ./$NAME_PART
     return
 fi
-if [ -n ${COMPILERS[$EXT]} ]; then
-    echo "Debug: We got here!"
+if [[ -n "${COMPILERS[$EXT]}" ]]; then
     eval "${COMPILERS[$EXT]} $NAME"
     return
 fi
-if [ -n ${SPECIAL_COMPILERS[$EXT]} ]; then
+if [[ -n ${SPECIAL_COMPILERS[$EXT]} ]]; then
     # replace %< & % with name part & name, and then run it
-    TO_RUN=${SPECIAL_COMPILERS[$EXT]/%</$NAME_PART}
-    eval "${TO_RUN/%/$NAME}"
+    TO_RUN=${SPECIAL_COMPILERS[$EXT]/\%\</$NAME_PART}
+    eval "${TO_RUN/\%/$NAME}"
     return
 fi
 echo -e "\n\nProgram might have compiled!"
@@ -137,7 +136,7 @@ echo -e "\n\nProgram might have compiled!"
 #     ${2,3,...} = arguments to pass to the command in the .yona file
 project-command () {
 LINE=$(grep "^$1 = " $YONA_FILE)
-if [ -z "$LINE" ]; then
+if [[ -z "$LINE" ]]; then
     echo "Yona Error: Undefined project command!"
     return
 fi
@@ -147,15 +146,15 @@ fi
 # calls the project-command function, if it can find a .yona file
 project-mode () {
 PROJ_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-if [ -n "$PROJ_ROOT" ]; then
+if [[ -n "$PROJ_ROOT" ]]; then
     cd $PROJ_ROOT
-    if [ -e .yona ]; then
+    if [[ -e .yona ]]; then
         project-command $@
         return
     fi
 fi
 until [[ $(pwd) == / ]]; do
-    if [ -e .yona ]; then
+    if [[ -e .yona ]]; then
         project-command $@
         return
     fi
