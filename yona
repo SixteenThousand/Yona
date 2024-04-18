@@ -125,11 +125,6 @@ compile-file () {
 echo -e "\nPreparing to compile . . .\n\n"
 get-fileinfo $1
 cd $PARENT
-if [[ -x $NAME_PART ]]; then
-    ./$NAME_PART
-    echo -e $COMPILE_END_MSG
-    return
-fi
 if [[ -n "${COMPILERS[$EXT]}" ]]; then
     eval "${COMPILERS[$EXT]} $NAME"
     echo -e $COMPILE_END_MSG
