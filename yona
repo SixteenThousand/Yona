@@ -21,6 +21,7 @@ COMPILERS[ts]="tsc --target esnext"
 
 declare -A SPECIAL_COMPILERS
 SPECIAL_COMPILERS[c]="gcc -o %< %"
+COMPILERS[ml]="ocamlc -o %< %"
 
 declare -A RUNNERS
 RUNNERS[go]="go run"
@@ -28,6 +29,7 @@ RUNNERS[hs]="runghc"
 RUNNERS[js]="node"
 RUNNERS[lisp]="sbcl --script"
 RUNNERS[mjs]="node"
+RUNNERS[ml]="ocaml"
 RUNNERS[php]="php"
 RUNNERS[ps1]="pwsh"
 RUNNERS[py]="python"
