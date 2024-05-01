@@ -169,6 +169,7 @@ case $1 in
 # calls the project-command function, if it can find a .yona file
 project-mode () {
 PROJ_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+START_DIR=$(pwd)
 if [[ -n "$PROJ_ROOT" ]]; then
     cd $PROJ_ROOT
     if [[ -e .yona ]]; then
@@ -176,6 +177,7 @@ if [[ -n "$PROJ_ROOT" ]]; then
         return
     fi
 fi
+cd $START_DIR
 until [[ $(pwd) == / ]]; do
     if [[ -e .yona ]]; then
         project-command $@
