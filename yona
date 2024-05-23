@@ -35,12 +35,25 @@ RUNNERS[php]="php"
 RUNNERS[ps1]="pwsh"
 RUNNERS[py]="python"
 RUNNERS[rb]="ruby"
+RUNNERS[sql]="psql -f"
+RUNNERS[sh]="bash"
+RUNNERS[bash]="bash"
+RUNNERS[fish]="fish"
 
 declare -A SPECIAL_RUNNERS
 SPECIAL_RUNNERS[java]="java %<"
     # adding EXE_EXT to a class file would break imports
 SPECIAL_RUNNERS[ts]="node %<$EXE_EXT.js"
 
+
+initialise () {
+    DEFAULT_YONA_FILE='show = pwd && cat .yona'
+    if [[ -z "$1" ]]; then
+        echo -e $DEFAULT_YONA_FILE >> $YONA_FILE
+    else
+        echo -e $1 >> $YONA_FILE
+    fi
+}
 
 print-help () {
 echo -e "\
@@ -204,5 +217,6 @@ case $1 in
     -s | --single-file) single-file-mode $2 $3;;
     -h | --help) print-help;;
     -v | --version) print-version;;
+    init) initialise $2;;
     *) project-mode $@;;
 esac
