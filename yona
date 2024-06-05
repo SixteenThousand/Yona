@@ -39,6 +39,7 @@ RUNNERS[sql]="psql -f"
 RUNNERS[sh]="bash"
 RUNNERS[bash]="bash"
 RUNNERS[fish]="fish"
+RUNNERS[pl]="perl"
 
 declare -A SPECIAL_RUNNERS
 SPECIAL_RUNNERS[java]="java %<"
