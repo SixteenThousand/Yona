@@ -171,13 +171,14 @@ case $1 in
         shift 1
         eval "$@"
         return;;
+    root) pwd && return;;
     *) 
         LINE=$(grep "^$1 = " $YONA_FILE)
         if [[ -z "$LINE" ]]; then
             echo "Yona Error: Undefined project command!"
             return
         fi
-         eval "${LINE#*= }";;
+        eval "${LINE#*= }";;
  esac
 }
 
