@@ -12,16 +12,16 @@ RUN_END_MSG="\n\nProgram Run! Perhaps! Maybe! Possibly!"
 # note that in the "SPECIAL" arrays, %< will be substituted for the name
 # part and % will be substituted for the filename
 declare -A COMPILERS
-COMPILERS[go]="go build"
 COMPILERS[hs]="ghc -Wno-tabs"
-COMPILERS[java]="javac -Xlint:unchecked"
-COMPILERS[rs]="rustc -A dead-code"
+COMPILERS[java]="javac17 -Xlint:unchecked"
 COMPILERS[ts]="tsc --target esnext"
 
 declare -A SPECIAL_COMPILERS
 SPECIAL_COMPILERS[c]="gcc -o %<$EXE_EXT %"
-SPECIAL_COMPILERS[tex]="pdflatex -output-directory='tex-logs' && mv tex-logs/%<.pdf ."
+SPECIAL_COMPILERS[go]="go build -o %<$EXE_EXT %"
+SPECIAL_COMPILERS[tex]="pdflatex -output-directory='tex-logs' % && mv tex-logs/%<.pdf ."
 SPECIAL_COMPILERS[ml]="ocamlc -o %<$EXE_EXT %"
+SPECIAL_COMPILERS[rs]="rustc -A dead-code -o %<$EXE_EXT %"
 
 declare -A RUNNERS
 RUNNERS[go]="go run"
@@ -42,7 +42,7 @@ RUNNERS[fish]="fish"
 RUNNERS[pl]="perl"
 
 declare -A SPECIAL_RUNNERS
-SPECIAL_RUNNERS[java]="java %<"
+SPECIAL_RUNNERS[java]="java17 %<"
     # adding EXE_EXT to a class file would break imports
 SPECIAL_RUNNERS[ts]="node %<$EXE_EXT.js"
 
