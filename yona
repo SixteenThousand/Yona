@@ -92,7 +92,7 @@ yona [ sh | shell ] SHELL_COMMAND
 
 
 print-version () {
-echo -e "Yona of the build v0.0.1 - bash version"
+echo -e "Yona of the build v0.2 - bash version"
 }
 
 

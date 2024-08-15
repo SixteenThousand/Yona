@@ -32,7 +32,7 @@ Function Invoke-Command {
 }
 
 Function Get-YonaInfo {
-	echo "Yona of the Build - pwsh version"
+	echo "Yona of the Build 0.1 - powershell version"
 	$desc = -join (`
 		"This tool allows you to run given shell commands ", `
 		"of a project from anywhwhere in said project" `
