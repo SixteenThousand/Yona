@@ -5,13 +5,8 @@ This is Yona, a script I use to help automate simple terminal tasks, mainly:
 - running/compiling the current file I'm editing
 - finding the top-level of a project and running the relevant build script
 
-It is designed primarily just to be hooked up to an editor's terminal emulator.
-
-**UPDATE** Bash version coming soon! Watch this space!
-I will likely take this opportunity to also improve Yona, changing a lot of 
-basic way in which it works. I will likely port those changes back the 
-powershell version, meaning there will be breaking changes. You will find 
-the current version tagged as v0.1.0.
+It is designed primarily just to be hooked up to an editor's terminal 
+emulator.
 
 ---
 
@@ -38,7 +33,7 @@ the current version tagged as v0.1.0.
 	This creates a file called .yona in your project's top-level directory 
 	with the following contents:
 	```
-	show;;ls
+    show = ls
 	```
 	This is just here as demonstation of the format; `ALIAS_NAME;;COMMAND`.
 	To run this command, just run
