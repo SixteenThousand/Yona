@@ -22,6 +22,7 @@ SPECIAL_COMPILERS[go]="go build -o %<$EXE_EXT %"
 SPECIAL_COMPILERS[tex]="pdflatex -output-directory='tex-logs' % && mv tex-logs/%<.pdf ."
 SPECIAL_COMPILERS[ml]="ocamlc -o %<$EXE_EXT %"
 SPECIAL_COMPILERS[rs]="rustc -A dead-code -o %<$EXE_EXT %"
+SPECIAL_COMPILERS[cpp]="g++ -o %<$EXE_EXT %"
 
 declare -A RUNNERS
 RUNNERS[go]="go run"
