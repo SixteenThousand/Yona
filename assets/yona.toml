@@ -1,0 +1,36 @@
+# When run, yona will replace certain patterns in the run & compile scripts,
+# as follows:
+# % -> the filename
+# %< -> the "name part" of teh filename, i.e. the filename without extension
+# %+ -> the "name part" + the extension .yonax
+
+[run]
+bash = "bash %"
+fish = "fish %"
+go = "go run %"
+hs = "runghc %"
+java = "java %<"
+js = "node %"
+lisp = "sbcl --script %"
+lua = "lua %"
+mjs = "node %"
+ml = "ocaml %"
+php = "php %"
+pl = "perl %"
+ps1 = "pwsh %"
+py = "python %"
+rb = "ruby %"
+sh = "bash %"
+sql = "psql -f %"
+ts = "node %+.js"
+
+[compile]
+c = "gcc % -o %+"
+cpp = "g++ % -o %+"
+go = "go build % -o %+"
+hs = "ghc -Wno-tabs %"
+java = "javac -Xlint:unchecked %"
+ml = "ocamlc % %+"
+rs = "rustc -A dead-code -o %+ %"
+tex = "pdflatex -output-directory='tex-logs' % && mv tex-logs/%<.pdf ."
+ts = "tsc --target esnext %"
