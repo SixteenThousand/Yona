@@ -59,7 +59,7 @@ initialise () {
 
 print-help () {
 echo -e "\
-Yona: the script that stands in the blush of the build v0.0.1 - bash version
+Yona: the script that stands in the blush of the build v0.2.1 - bash version
 Usage:
     yona [ -s | --single-file] [ run | compile ] FILEPATH
     yona COMMAND
@@ -93,7 +93,7 @@ yona [ sh | shell ] SHELL_COMMAND
 
 
 print-version () {
-echo -e "Yona of the build v0.2 - bash version"
+echo -e "Yona of the build v0.2.1 - bash version"
 }
 
 
