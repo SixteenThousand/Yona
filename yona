@@ -57,7 +57,7 @@ initialise () {
     fi
 }
 
-print-help () {
+print_help () {
 echo -e "\
 Yona: the script that stands in the blush of the build v0.2.1 - bash version
 Usage:
@@ -92,13 +92,13 @@ yona [ sh | shell ] SHELL_COMMAND
 }
 
 
-print-version () {
+print_version () {
 echo -e "Yona of the build v0.2.1 - bash version"
 }
 
 
 # get file extension, name, name part, & parent directory
-get-fileinfo () {
+get_fileinfo () {
 PARENT=$(dirname $1)
 NAME=$(basename $1)
 NAME_PART=${NAME%%.*}
@@ -113,9 +113,9 @@ EXT=${NAME##*.}
 # executable, it will try to run that instead.
 # Parameters:
 #     $1 = the absolute path to the file
-run-file () {
+run_file () {
 echo -e "\nPreparing to run . . .\n\n"
-get-fileinfo $1
+get_fileinfo $1
 cd $PARENT
 if [[ -x $NAME_PART$EXE_EXT ]]; then
     ./$NAME_PART$EXE_EXT
@@ -140,9 +140,9 @@ fi
 # extension.
 # Parameters:
 #     $1 = the absolute path to the file
-compile-file () {
+compile_file () {
 echo -e "\nPreparing to compile . . .\n\n"
-get-fileinfo $1
+get_fileinfo $1
 cd $PARENT
 if [[ -n "${COMPILERS[$EXT]}" ]]; then
     eval "${COMPILERS[$EXT]} $NAME"
@@ -166,7 +166,7 @@ fi
 # Parameters:
 #     $1 = name of command given in .yona file
 #     ${2,3,...} = arguments to pass to the command in the .yona file
-project-command () {
+project_command () {
 case $1 in
     sh | shell)
         shift 1
@@ -183,21 +183,21 @@ case $1 in
  esac
 }
 
-# calls the project-command function, if it can find a .yona file
-project-mode () {
+# calls the project_command function, if it can find a .yona file
+project_mode () {
 PROJ_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 START_DIR=$(pwd)
 if [[ -n "$PROJ_ROOT" ]]; then
     cd $PROJ_ROOT
     if [[ -e .yona ]]; then
-        project-command $@
+        project_command $@
         return
     fi
 fi
 cd $START_DIR
 until [[ $(pwd) == / ]]; do
     if [[ -e .yona ]]; then
-        project-command $@
+        project_command $@
         return
     fi
     cd ..
@@ -207,26 +207,26 @@ exit 1
 }
 
 
-# calls the run-file or compile-file functions
-single-file-mode () {
+# calls the run_file or compile_file functions
+single_file_mode () {
 case $1 in
-    run) run-file $2;;
-    compile) compile-file $2;;
+    run) run_file $2;;
+    compile) compile_file $2;;
     *) echo -e "Invalid file command!\nUse either run or compile.";;
 esac
 }
 
 
 case $1 in
-    -s | --single-file) single-file-mode $2 $3;;
-    -h | --help) print-help;;
-    -v | --version) print-version;;
+    -s | --single-file) single_file_mode $2 $3;;
+    -h | --help) print_help;;
+    -v | --version) print_version;;
     init) initialise $2;;
-    *) project-mode $@;;
+    *) project_mode $@;;
 esac
 
 unset YONA_FILE EXE_EXT COMPILE_END_MSG RUN_END_MSG COMPILERS RUNNERS \
     SPECIAL_COMPILERS SPECIAL_RUNNERS NAME_PART PARENT EXT NAME TO_RUN LINE \
     START_DIR PROJ_ROOT
-unset -f initialise print-help print-version get-fileinfo run-file \
-    compile-file project-command project-mode single-file-mode
+unset -f initialise print_help print_version get_fileinfo run_file \
+    compile_file project_command project_mode single_file_mode
