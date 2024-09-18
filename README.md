@@ -21,7 +21,7 @@ where the file was.
 ## Getting Started
 
 Yona is written in bash version 5.2. It is not guaranteed to work on older 
-versions of bash. It also requires `cut` (a GNU coreutil).
+versions of bash. It also requires `grep` (a GNU coreutil).
 
 So, all in all, yona should work on most Linux systems.
 
@@ -108,30 +108,36 @@ using the following algorithm:
 
 The exact behaviour of yona can be configured using files in the directory
 `$XDG_CONFIG_DIR/yona` or `~/.config/yona`. Currently this consists of two 
-files, `run` and `compile`. These have the same format: a file extension, 
-followed by an equals sign, followed by a shell command that runs/compiles 
-files with that extension. The shell command also uses the following 
-substitutions:
+files, `run.sh` and `compile.sh`. These are shell scripts which set 
+environment variables yona uses when running.
+
+The most important settings are `COMPILERS` and `RUNNERS`. These sset the 
+shell commands used to run & compile individual 
+The shell command also uses the following substitutions:
 - %  -> the filename
 - %< -> the "name part" of the filename, i.e. the filename without extension
 - %+ -> the "name part" + the extension .yonax
 
 ### Example
 
-~/.config/run
-```
-go = go run %
-py = python3 %
-hs = runghc %
-java = java %<
+~/.config/run.sh
+```bash
+RUNNERS=(
+    [go]="go run %"
+    [py]="python3 %"
+    [hs]="runghc %"
+    [java]="java %<"
+)
 ```
 
-~/.config/compile
-```
-c = gcc % -o %+
-go = go build % -o %+
-hs = ghc -Wno-tabs %
-java = javac %
+~/.config/compile.sh
+```bash
+COMPILERS=(
+    [c]="gcc % -o %+"
+    [go]="go build % -o %+"
+    [hs]="ghc -Wno-tabs %"
+    [java]="javac %"
+)
 ```
 
 So, in this example, yona would try to compile a C source file called 
