@@ -224,9 +224,3 @@ case $1 in
     init) initialise $2;;
     *) project_mode $@;;
 esac
-
-unset YONA_FILE EXE_EXT COMPILE_END_MSG RUN_END_MSG COMPILERS RUNNERS \
-    SPECIAL_COMPILERS SPECIAL_RUNNERS NAME_PART PARENT EXT NAME TO_RUN LINE \
-    START_DIR PROJ_ROOT
-unset -f initialise print_help print_version get_fileinfo run_file \
-    compile_file project_command project_mode single_file_mode
