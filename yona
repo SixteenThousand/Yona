@@ -58,42 +58,37 @@ function initialise {
 }
 
 function print_help {
-	echo -e "\
-	Yona: the script that stands in the blush of the build v0.2.1 - bash version
+	cat <<- EOF
+	Yona: the script that stands in the blush of the build v0.3.0
 	Usage:
-	    yona [ -s | --single-file] [ run | compile ] FILEPATH
-	    yona COMMAND
-	    yona [ sh | shell ] SHELL_COMMAND
-	SINGLE FILE MODE
-	yona [ -s | --single-file ] [ run | compile ] FILEPATH
-	    tries to compile/run FILEPATH as best it can based off of the extension 
-	    of FILEPATH. Will run an executable with the same \"name part\" (i.e. 
-	    name without extension) first if possible.
-	yona COMMAND
-	    runs a command specified by COMMAND at the topmost level of the project 
-	    that the pwd is in, if any. Specifically, yona looks for a file called 
-	    \".yona\", which will have contents of the form below:
-	        build = BUILD_COMMAND
-	        test = TEST_COMMAND
-	        ...
-	   yona will then see if any line in this file has COMMAND before the equals 
-	   sign, and if so run the command to the right of the equals sign at the 
-	   directory where the .yona file was found.
-	   yona will first check if the pwd is in a git repository, and if so look 
-	   for .yona there. If that fails, it will look through the ancestor of pwd 
-	   until it either finds a .yona file or reaches root.
-	yona [ sh | shell ] SHELL_COMMAND
-	    Runs SHELL_COMMAND at project root (see above). Overrides the above 
-	    syntax if there is a conflict (i.e. you make a yona command called 
-	    "shell" or "sh"). So, for example:
-	        yona sh grep \"fish\"
-	    would find the project root and then run \`grep \"fish\"\` there.
-	"
+	    [1myona PROJECT_COMMAND[0m
+	Runs a command called PROJECT_COMMAND specified in the closest 
+	"Project commands" file. This can be any one of:
+	    1. A .yona file
+	    2. A Makefile
+	    3. A package.json
+	Commands are prioritised in that order, so a "build" command in both a .yona &
+	a Makefile results in the yona script being run.
+	A .yona file has the format
+	    COMMAND_NAME = SHELL_COMMAND
+	where SHELL_COMMAND must not contain [3many[0m newlines, even with a "\".
+	    [1myona [-l|--list] [DIRECTORY][0m
+	Lists project commands currently available.
+	    [1myona [-f|--file] [run|compile] FILE[0m
+	Runs or compiles FILE according to its filetype. Checks whether an executable
+	with the name part of FILE (that is, the name without extension) plus a special
+	extension exists already, and if it does, executes that when asked to run FILE.
+	The special extension is ".yonax" by default.
+	    [1myona [-s|--shell] SHELL_COMMAND[0m
+	    [1mysh SHELL_COMMAND[0m
+	Runs SHELL_COMMAND at project root, i.e. whereever the nearest source of project 
+	commands is.
+	EOF
 }
 
 
 function print_version {
-	echo -e "Yona of the build v0.2.1 - bash version"
+	echo -e "Yona of the build v0.3.0"
 }
 
 
