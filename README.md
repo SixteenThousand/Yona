@@ -96,12 +96,14 @@ that is, yona will check for a `.yona`  file first and look for a `Makefile`
 
 The "Project Root" of the current working directory is determined by yona 
 using the following algorithm:
-1. yona determines whether the pwd is in a git repository; if so, the 
-   location of the `.git` directory is project root.
-2. yona does the same thing for mercurial
-3. yona recursively moves up the file system hierarchy, starting at the 
-   current working directory, only stopping when it finds a 
-   `.yona`/`Makefile`/`package.json` file.
+1. Check whether the current working directory contains a project commands 
+   file (the file types listed in [Project Commands](#project-commands)).
+   If it does, we are at project root.
+2. Check whether the current working directory is the root of a source 
+   control repository (currently only planned to support git and mercurial).
+3. If current working directory is the root of the system, stop & display an 
+   error message.
+4. Go to the parent directory. Go to step 1.
 
 
 ## Configuration
@@ -145,4 +147,4 @@ So, in this example, yona would try to compile a C source file called
 with `yona -f run program.c`.
 You can also see here why the `run` and `compile` commands are separate: the 
 Go language can be run directly with `go run`, but it can also be compiled 
-first. Haing the commands be separate allows you to use go either way.
+first. Having the commands be separate allows you to use go either way.
