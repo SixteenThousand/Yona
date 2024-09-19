@@ -2,6 +2,7 @@
 # Bash version of yona
 
 CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config/yona}
+HAS_JQ=$(which jq 2>/dev/null)
 
 
 function error {
@@ -118,7 +119,7 @@ function project_mode {
 			fi
 			error "Invalid project command!"
 		fi
-		if [ -f 'package.json' ]
+		if [ -f 'package.json' -a -n "$HAS_JQ" ]
 		then
 			if [ "$(jq .scripts.$1 package.json)" != 'null' ]
 			then
@@ -146,7 +147,7 @@ function shell_mode {
 			eval "$@"
 			return
 		fi
-		if [ -f 'package.json' ]
+		if [ -f 'package.json' -a -n "$HAS_JQ" ]
 		then
 			eval "$@"
 			return
@@ -176,7 +177,7 @@ function list_commands {
 			$CAT_PROVIDER Makefile
 			REACHED_PROJ_ROOT=TRUE
 		fi
-		if [ -f 'package.json' ]
+		if [ -f 'package.json' -a -n "$HAS_JQ" ]
 		then
 			echo -e "\e[1mnpm scripts\e[0m"
 			jq .scripts package.json
