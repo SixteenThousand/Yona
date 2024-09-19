@@ -215,9 +215,12 @@ function single_file_mode {
 
 
 case $1 in
-	-s | --single-file) single_file_mode $2 $3;;
-	-h | --help) print_help;;
-	-v | --version) print_version;;
-	init) initialise $2;;
+	-f|--file) single_file_mode $2 $3;;
+	-s|--shell)
+		shift
+		shell_mode $@;;
+	-l|--list) list_commands;;
+	-h|--help) print_help;;
+	-v|--version) print_version;;
 	*) project_mode $@;;
 esac
