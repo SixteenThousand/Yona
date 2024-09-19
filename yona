@@ -103,22 +103,11 @@ function compile_file {
 	fi
 }
 
-# Runs a given command at project root. Looks for the git root first, then if 
-# that fails looks for a file called '.yona' in the ancestors of pwd.
-# Looks for command with the name of $1 in .yona, unless that command is
-# shell,sh, etc., in which case it just passes all other arguments asa
-# command to bash
-# Parameters:
-#	$1 = name of command given in .yona file
-#	${2,3,...} = arguments to pass to the command in the .yona file
-function project_command {
-	case $1 in
-		sh | shell)
-			shift 1
-			eval "$@"
-			return;;
-		root) pwd && return;;
-		*) 
+function project_mode {
+	until [[ "$(pwd)" == / ]]
+	do
+		if [ -f '.yona' ]
+		then
 			LINE=$(grep "^$1 = " $YONA_FILE)
 			if [[ -z "$LINE" ]]; then
 				echo -e \
@@ -126,30 +115,27 @@ function project_command {
 				exit 1
 			fi
 			eval "${LINE#*= }";;
-	 esac
-}
-
-# calls the project_command function, if it can find a .yona file
-function project_mode {
-	PROJ_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-	START_DIR=$(pwd)
-	if [[ -n "$PROJ_ROOT" ]]; then
-		cd $PROJ_ROOT
-		if [[ -e .yona ]]; then
-			project_command $@
-			return
 		fi
-	fi
-	cd $START_DIR
-	until [[ $(pwd) == / ]]; do
-		if [[ -e .yona ]]; then
-			project_command $@
-			return
+		if [ -f 'Makefile' ] && (cat Makefile | grep "^$1")
+		then
+			make $1
+		fi
+		if which jq 2>/dev/null
+		then
+			if [ -f 'package.json' -a \
+				"$(jq .scripts.$1 package.json)" != 'null' ]
+			then
+				npm run $1
+			fi
+		else
+			echo -e \
+				"\e[31mYona Error: jq is required to run npm scripts!\e[0m" \
+				>&2
 		fi
 		cd ..
 	done
 	echo -e \
-		"\e[31mYona Error: No .yona file!\e[0m" >&2
+		"\e[31mYona Error: No project commands file!\e[0m" >&2
 	exit 1
 }
 
