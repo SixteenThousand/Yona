@@ -1,5 +1,7 @@
-build:
-	cp ./yona $(HOME)/path-extras
 install:
-	cp ./yona /usr/bin/yona
-	cp ./config/* -t $${XDG_CONFIG_DIR:-$(HOME)/.config}/yona
+	sudo cp ./yona /usr/bin
+	sudo cp ./ysh /usr/bin
+	# the '|| :' prevents make from saying there was an error
+	cp -n ./config/* -t $${XDG_CONFIG_DIR:-$(HOME)/.config}/yona || :
+uninstall:
+	sudo rm /usr/bin/yona /usr/bin/ysh
