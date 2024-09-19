@@ -11,10 +11,10 @@ COMPILERS=(
 	[c]="gcc -o %+ %"
 	[cpp]="g++ -o %+ %"
 	[go]="go build -o %+ %"
-	[hs]="ghc -Wno-tabs"
-	[java]="javac"
+	[hs]="ghc -Wno-tabs %"
+	[java]="javac %"
 	[ml]="ocamlc -o %+ %"
 	[rs]="rustc -A dead-code -o %+ %"
 	[tex]="pdflatex -output-directory='tex-logs' % && mv tex-logs/%<.pdf ."
-	[ts]="tsc --target esnext"
+	[ts]="tsc --target esnext %"
 )
