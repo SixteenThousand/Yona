@@ -2,22 +2,12 @@
 # Bash version of yona
 
 CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config/yona}
-YONA_FILE=".yona"
 EXE_EXT=".yonax"
 
 
 function error {
 	echo -e "\e[31mYona Error: $1\e[0m" >&2
 	exit 1
-}
-
-function initialise {
-	DEFAULT_YONA_FILE='show = pwd && cat .yona'
-	if [[ -z "$1" ]]; then
-		echo -e $DEFAULT_YONA_FILE >> $YONA_FILE
-	else
-		echo -e $1 >> $YONA_FILE
-	fi
 }
 
 function print_help {
