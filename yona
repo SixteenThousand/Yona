@@ -12,7 +12,7 @@ function error {
 
 function print_help {
 	cat <<- EOF
-	Yona: the script that stands in the blush of the build v0.3.0
+	Yona: the script that stands in the blush of the build v0.4.0
 	Usage:
 	    [1myona PROJECT_COMMAND[0m
 	Runs a command called PROJECT_COMMAND specified in the closest 
@@ -40,7 +40,7 @@ function print_help {
 
 
 function print_version {
-	echo -e "Yona of the build v0.3.0"
+	echo -e "Yona of the build v0.4.0"
 }
 
 

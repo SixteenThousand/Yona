@@ -22,7 +22,8 @@ where the file was.
 
 Yona is written in bash version 5.2. It is not guaranteed to work on older 
 versions of bash. It also requires grep (a GNU coreutil) and jq 
-(<https://jqlang.github.io/jq/>) for parsing package.json files.
+(<https://jqlang.github.io/jq/>) for parsing package.json files. If jq is 
+not installed, yona will just ignore package.json files.
 
 To install yona, clone this repo and run `make install` you will need to 
 enter your system password to complete the installation.
