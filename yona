@@ -5,6 +5,12 @@ CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config/yona}
 YONA_FILE=".yona"
 EXE_EXT=".yonax"
 
+
+function error {
+	echo -e "\e[31mYona Error: $1\e[0m" >&2
+	exit 1
+}
+
 function initialise {
 	DEFAULT_YONA_FILE='show = pwd && cat .yona'
 	if [[ -z "$1" ]]; then
@@ -110,9 +116,7 @@ function project_mode {
 		then
 			LINE=$(grep "^$1 = " $YONA_FILE)
 			if [[ -z "$LINE" ]]; then
-				echo -e \
-					"\e[31mYona Error: Undefined project command!\e[0m" >&2
-				exit 1
+				error "Undefined project command!\e[0m"
 			fi
 			eval "${LINE#*= }";;
 		fi
@@ -128,15 +132,11 @@ function project_mode {
 				npm run $1
 			fi
 		else
-			echo -e \
-				"\e[31mYona Error: jq is required to run npm scripts!\e[0m" \
-				>&2
+			error "jq is required to run npm scripts!"
 		fi
 		cd ..
 	done
-	echo -e \
-		"\e[31mYona Error: No project commands file!\e[0m" >&2
-	exit 1
+	error "No project commands file!"
 }
 
 
@@ -164,8 +164,7 @@ function shell_mode {
 			return
 		fi
 	done
-	echo -e \
-		"\e[31mYona Error: Not in a project!\e[0m" >&2
+		error "Not in a project!"
 }
 	
 
@@ -174,7 +173,7 @@ function single_file_mode {
 	case $1 in
 		run) run_file $2;;
 		compile) compile_file $2;;
-		*) echo -e "Invalid file command!\nUse either run or compile.";;
+		*) error "Invalid file command!\nUse either run or compile.";;
 	esac
 }
 
