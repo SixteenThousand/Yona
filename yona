@@ -121,7 +121,8 @@ function project_command {
 		*) 
 			LINE=$(grep "^$1 = " $YONA_FILE)
 			if [[ -z "$LINE" ]]; then
-				echo "Yona Error: Undefined project command!" >&2
+				echo -e \
+					"\e[31mYona Error: Undefined project command!\e[0m" >&2
 				exit 1
 			fi
 			eval "${LINE#*= }";;
@@ -147,7 +148,8 @@ function project_mode {
 		fi
 		cd ..
 	done
-	echo "Yona Error: No .yona file!" >&2
+	echo -e \
+		"\e[31mYona Error: No .yona file!\e[0m" >&2
 	exit 1
 }
 
