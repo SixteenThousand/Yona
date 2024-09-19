@@ -21,11 +21,11 @@ where the file was.
 ## Getting Started
 
 Yona is written in bash version 5.2. It is not guaranteed to work on older 
-versions of bash. It also requires `grep` (a GNU coreutil).
+versions of bash. It also requires grep (a GNU coreutil) and jq 
+(<https://jqlang.github.io/jq/>) for parsing package.json files.
 
-So, all in all, yona should work on most Linux systems.
-
-To install yona, clone this repo and run `sudo make install`.
+To install yona, clone this repo and run `make install` you will need to 
+enter your system password to complete the installation.
 
 ## Usage
 
