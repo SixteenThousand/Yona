@@ -1,52 +1,9 @@
 #!/bin/bash
 # Bash version of yona
 
+CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config/yona}
 YONA_FILE=".yona"
 EXE_EXT=".yonax"
-
-# messages to display once the single file mode operations are complete
-COMPILE_END_MSG="\n\nCompiled! Maybe!"
-RUN_END_MSG="\n\nProgram Run! Perhaps! Maybe! Possibly!"
-
-# the filetypes supported by yona (single file mode)
-# note that in the "SPECIAL" arrays, %< will be substituted for the name
-# part and % will be substituted for the filename
-declare -A COMPILERS
-COMPILERS[hs]="ghc -Wno-tabs"
-COMPILERS[java]="javac17 -Xlint:unchecked"
-COMPILERS[ts]="tsc --target esnext"
-
-declare -A SPECIAL_COMPILERS
-SPECIAL_COMPILERS[c]="gcc -o %<$EXE_EXT %"
-SPECIAL_COMPILERS[go]="go build -o %<$EXE_EXT %"
-SPECIAL_COMPILERS[tex]="pdflatex -output-directory='tex-logs' % && mv tex-logs/%<.pdf ."
-SPECIAL_COMPILERS[ml]="ocamlc -o %<$EXE_EXT %"
-SPECIAL_COMPILERS[rs]="rustc -A dead-code -o %<$EXE_EXT %"
-SPECIAL_COMPILERS[cpp]="g++ -o %<$EXE_EXT %"
-
-declare -A RUNNERS
-RUNNERS[go]="go run"
-RUNNERS[hs]="runghc"
-RUNNERS[js]="node"
-RUNNERS[lisp]="sbcl --script"
-RUNNERS[lua]="lua"
-RUNNERS[mjs]="node"
-RUNNERS[ml]="ocaml"
-RUNNERS[php]="php"
-RUNNERS[ps1]="pwsh"
-RUNNERS[py]="python"
-RUNNERS[rb]="ruby"
-RUNNERS[sql]="psql -f"
-RUNNERS[sh]="bash"
-RUNNERS[bash]="bash"
-RUNNERS[fish]="fish"
-RUNNERS[pl]="perl"
-
-declare -A SPECIAL_RUNNERS
-SPECIAL_RUNNERS[java]="java17 %<"
-	# adding EXE_EXT to a class file would break imports
-SPECIAL_RUNNERS[ts]="node %<$EXE_EXT.js"
-
 
 function initialise {
 	DEFAULT_YONA_FILE='show = pwd && cat .yona'
@@ -103,30 +60,26 @@ function get_fileinfo {
 
 # Does its level best to "run" the given file, whatever that may mean for that 
 # file. Mostly it will just choose the right interpreter for the job (python, 
-# lua, etc.), but if there is another file whose name is the "name part" of 
-# the file (i.e., the file name with any extension removed) which is 
-# executable, it will try to run that instead.
+# lua, etc.), but if it finds an executable whose name is the "name part" of
+# the file + $EXE_EXT, it will try to run that instead.
 # Parameters:
-#	$1 = the absolute path to the file
+#	$1 = The absolute path to the file
 function run_file {
-	echo -e "\nPreparing to run . . .\n\n"
+	source $CONFIG_DIR/run.sh
+	echo -e $START_MSG
 	get_fileinfo $1
 	cd $PARENT
-	if [[ -x $NAME_PART$EXE_EXT ]]; then
+	if [[ -x "$NAME_PART$EXE_EXT" ]]; then
 		./$NAME_PART$EXE_EXT
-		echo -e $RUN_END_MSG
+		echo -e $END_MSG
 		return
 	fi
-	if [[ -n ${RUNNERS[$EXT]} ]]; then
-		eval "${RUNNERS[$EXT]} $NAME"
-		echo -e $RUN_END_MSG
-		return
-	fi
-	if [[ -n ${SPECIAL_RUNNERS[$EXT]} ]]; then
+	if [[ -n "${RUNNERS[$EXT]}" ]]; then
 		# replace %< & % with name part & name, and then run it
-		TO_RUN=${SPECIAL_RUNNERS[$EXT]/\%\</$NAME_PART}
+		TO_RUN=${RUNNERS[$EXT]/\%\</$NAME_PART}
+		TO_RUN=${TO_RUN/\%\+/$NAME_PART$EXE_EXT}
 		eval "${TO_RUN/\%/$NAME}"
-		echo -e $RUN_END_MSG
+		echo -e $END_MSG
 		return
 	fi
 }
@@ -134,21 +87,18 @@ function run_file {
 # Compiles the given file with the relevant program based on the file's 
 # extension.
 # Parameters:
-#	$1 = the absolute path to the file
+#	$1 = The absolute path to the file
 function compile_file {
-	echo -e "\nPreparing to compile . . .\n\n"
+	source $CONFIG_DIR/compile.sh
+	echo -e $START_MSG
 	get_fileinfo $1
 	cd $PARENT
-	if [[ -n "${COMPILERS[$EXT]}" ]]; then
-		eval "${COMPILERS[$EXT]} $NAME"
-		echo -e $COMPILE_END_MSG
-		return
-	fi
-	if [[ -n ${SPECIAL_COMPILERS[$EXT]} ]]; then
+	if [[ -n ${COMPILERS[$EXT]} ]]; then
 		# replace %< & % with name part & name, and then run it
-		TO_RUN=${SPECIAL_COMPILERS[$EXT]/\%\</$NAME_PART}
+		TO_RUN=${COMPILERS[$EXT]/\%\</$NAME_PART}
+		TO_RUN=${TO_RUN/\%\+/$NAME_PART$EXE_EXT}
 		eval "${TO_RUN/\%/$NAME}"
-		echo -e $COMPILE_END_MSG
+		echo -e $END_MSG
 		return
 	fi
 }
