@@ -33,7 +33,6 @@ function print_help {
 	extension exists already, and if it does, executes that when asked to run FILE.
 	The special extension is ".yonax" by default.
 	    [1myona [-s|--shell] SHELL_COMMAND[0m
-	    [1mysh SHELL_COMMAND[0m
 	Runs SHELL_COMMAND at project root, i.e. whereever the nearest source of project 
 	commands is.
 	EOF

@@ -34,7 +34,6 @@ yona PROJECT_COMMAND
 yona [-l|--list] [DIRECTORY]
 yona [-f|--file] [run|compile] FILE
 yona [-s|--shell] SHELL_COMMAND
-ysh SHELL_COMMAND
 ```
 
 ### `yona {PROJECT_COMMAND}`
@@ -50,7 +49,8 @@ information.
 
 ### `yona --shell {SHELL_COMMAND}`
 
-Same as [`ysh {SHELL_COMMAND}`](#ysh-SHELL_COMMAND).
+Run SHELL_COMMAND at project root. See [Project Root](#project-root) for 
+more information.
 
 ### `yona --file compile FILE_NAME`
 
@@ -71,11 +71,6 @@ the following algorithm to do this:
    above) to execute
 2. if no such file is found, yona looks for a run command to use in its 
    configuration file (see [configuration](#configuration)
-
-### `ysh SHELL_COMMAND`
-
-Run SHELL_COMMAND at project root. See [Project Root](#project-root) for 
-more information.
 
 
 ## Project Commands

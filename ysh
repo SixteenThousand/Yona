@@ -1,8 +1,0 @@
-#!/bin/env bash
-
-if [ "$1" = '-v' -o "$1" = '--version' ]
-then
-	yona -v
-else
-	yona --shell $@
-fi
