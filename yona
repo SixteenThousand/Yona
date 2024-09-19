@@ -140,6 +140,35 @@ function project_mode {
 }
 
 
+function shell_mode {
+	until [ "$(pwd)" = / ]
+	do
+		if [ -f '.yona' ]
+		then
+			eval "$@"
+			return
+		fi
+		if [ -f 'Makefile' ]
+		then
+			eval "$@"
+			return
+		fi
+		if [ -f 'package.json' ]
+		then
+			eval "$@"
+			return
+		fi
+		if [ -d '.git' -o -d '.hg' ]
+		then
+			eval "$@"
+			return
+		fi
+	done
+	echo -e \
+		"\e[31mYona Error: Not in a project!\e[0m" >&2
+}
+	
+
 # calls the run_file or compile_file functions
 function single_file_mode {
 	case $1 in
