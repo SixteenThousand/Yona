@@ -141,7 +141,7 @@ function project_mode {
 		fi
 		cd ..
 	done
-	error "No project commands file!"
+	error "Not in a project!"
 }
 
 
@@ -168,6 +168,7 @@ function shell_mode {
 			eval "$@"
 			return
 		fi
+		cd ..
 	done
 	error "Not in a project!"
 }
