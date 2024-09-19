@@ -114,25 +114,30 @@ function project_mode {
 	do
 		if [ -f '.yona' ]
 		then
-			LINE=$(grep "^$1 = " $YONA_FILE)
-			if [[ -z "$LINE" ]]; then
-				error "Undefined project command!\e[0m"
+			LINE=$(grep "^$1 = " '.yona')
+			if [[ -n "$LINE" ]]; then
+				eval "${LINE#*= }"
+				return
 			fi
-			eval "${LINE#*= }";;
+			error "Invalid project command!"
 		fi
-		if [ -f 'Makefile' ] && (cat Makefile | grep "^$1")
+		if [ -f 'Makefile' ]
 		then
-			make $1
+			if [ -n "$(grep "^$1:" Makefile)" ]
+			then
+				make $1
+				return
+			fi
+			error "Invalid project command!"
 		fi
-		if which jq 2>/dev/null
+		if [ -f 'package.json' ]
 		then
-			if [ -f 'package.json' -a \
-				"$(jq .scripts.$1 package.json)" != 'null' ]
+			if [ "$(jq .scripts.$1 package.json)" != 'null' ]
 			then
 				npm run $1
+				return
 			fi
-		else
-			error "jq is required to run npm scripts!"
+			error "Invalid project command!"
 		fi
 		cd ..
 	done
@@ -164,7 +169,7 @@ function shell_mode {
 			return
 		fi
 	done
-		error "Not in a project!"
+	error "Not in a project!"
 }
 	
 
