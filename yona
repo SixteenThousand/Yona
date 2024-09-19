@@ -2,7 +2,6 @@
 # Bash version of yona
 
 CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config/yona}
-EXE_EXT=".yonax"
 
 
 function error {
@@ -168,13 +167,13 @@ function list_commands {
 		if [ -f '.yona' ]
 		then
 			echo -e "\e[1mYona Commands:\e[0m"
-			cat .yona
+			$CAT_PROVIDER .yona
 			REACHED_PROJ_ROOT=TRUE
 		fi
 		if [ -f 'Makefile' ]
 		then
 			echo -e "\e[1mMake Commands:\e[0m"
-			bat Makefile --style plain
+			$CAT_PROVIDER Makefile
 			REACHED_PROJ_ROOT=TRUE
 		fi
 		if [ -f 'package.json' ]
@@ -203,6 +202,7 @@ function single_file_mode {
 }
 
 
+source $CONFIG_DIR/config.sh
 case $1 in
 	-f|--file) single_file_mode $2 $3;;
 	-s|--shell)

@@ -104,8 +104,8 @@ using the following algorithm:
 ## Configuration
 
 The exact behaviour of yona can be configured using files in the directory
-`$XDG_CONFIG_DIR/yona` or `~/.config/yona`. Currently this consists of two 
-files, `run.sh` and `compile.sh`. These are shell scripts which set 
+`$XDG_CONFIG_DIR/yona` or `~/.config/yona`. This consists of three files, 
+`config.sh`, `run.sh` and `compile.sh`. These are shell scripts which set 
 environment variables yona uses when running.
 
 The most important settings are `COMPILERS` and `RUNNERS`. These sset the 
@@ -143,3 +143,9 @@ with `yona -f run program.c`.
 You can also see here why the `run` and `compile` commands are separate: the 
 Go language can be run directly with `go run`, but it can also be compiled 
 first. Having the commands be separate allows you to use go either way.
+
+You can also set a message to printed before & after running/compilation by 
+setting `START_MSG` & `END_MSG` in the `run.sh` & `compile.sh`.
+
+`config.sh` sets other options; look at the default version of it in the 
+configs directory for more information.
