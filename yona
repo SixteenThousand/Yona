@@ -172,6 +172,36 @@ function shell_mode {
 	done
 	error "Not in a project!"
 }
+
+function list_commands {
+	until [ "$(pwd)" = / ]
+	do
+		if [ -f '.yona' ]
+		then
+			echo -e "\e[1mYona Commands:\e[0m"
+			cat .yona
+			REACHED_PROJ_ROOT=TRUE
+		fi
+		if [ -f 'Makefile' ]
+		then
+			echo -e "\e[1mMake Commands:\e[0m"
+			bat Makefile --style plain
+			REACHED_PROJ_ROOT=TRUE
+		fi
+		if [ -f 'package.json' ]
+		then
+			echo -e "\e[1mnpm scripts\e[0m"
+			jq .scripts package.json
+			REACHED_PROJ_ROOT=TRUE
+		fi
+		if [ -n "$REACHED_PROJ_ROOT" ]
+		then
+			return
+		fi
+		cd ..
+	done
+	error "Not in a project!"
+}
 	
 
 # calls the run_file or compile_file functions
