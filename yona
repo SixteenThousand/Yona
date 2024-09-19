@@ -108,7 +108,7 @@ function project_mode {
 				eval "${LINE#*= }"
 				return
 			fi
-			error "Invalid project command!"
+			INVALID_COMMAND=TRUE
 		fi
 		if [ -f 'Makefile' ]
 		then
@@ -117,7 +117,7 @@ function project_mode {
 				make $1
 				return
 			fi
-			error "Invalid project command!"
+			INVALID_COMMAND=TRUE
 		fi
 		if [ -f 'package.json' -a -n "$HAS_JQ" ]
 		then
@@ -126,6 +126,10 @@ function project_mode {
 				npm run $1
 				return
 			fi
+			INVALID_COMMAND=TRUE
+		fi
+		if [ -n "$INVALID_COMMAND" ]
+		then
 			error "Invalid project command!"
 		fi
 		cd ..
