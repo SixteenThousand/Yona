@@ -1,6 +1,7 @@
 # Yona
 
 *The script that stands in the blush of the build*
+
 This is Yona, shell script (originally powershell, now bash) that has 
 ballooned into a mini-application. Its goals are twofold:
 
@@ -17,16 +18,6 @@ and/or run it.
 It does (2) by taking a word - a *project command* - looking for a file in 
 which this command is defined, and running the command in the directory 
 where the file was.
-
-## Getting Started
-
-Yona is written in bash version 5.2. It is not guaranteed to work on older 
-versions of bash. It also requires grep (a GNU coreutil) and jq 
-(<https://jqlang.github.io/jq/>) for parsing package.json files. If jq is 
-not installed, yona will just ignore package.json files.
-
-To install yona, clone this repo and run `make install` you will need to 
-enter your system password to complete the installation.
 
 ## Usage
 
@@ -150,3 +141,14 @@ setting `START_MSG` & `END_MSG` in the `run.sh` & `compile.sh`.
 
 `config.sh` sets other options; look at the default version of it in the 
 configs directory for more information.
+
+<!-- exclude everything after this point from man page -->
+## Getting Started
+
+Yona is written in bash version 5.2. It is not guaranteed to work on older 
+versions of bash. It also requires grep (a GNU coreutil) and jq 
+(<https://jqlang.github.io/jq/>) for parsing package.json files. If jq is 
+not installed, yona will just ignore package.json files.
+
+To install yona, clone this repo and run `make install` you will need to 
+enter your system password to complete the installation.
