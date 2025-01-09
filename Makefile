@@ -1,6 +1,11 @@
+BINARY_DIR=$(HOME)/.local/bin
+ifeq ($(XDG_CONFIG_DIR),)
+	XDG_CONFIG_DIR=$(HOME)/.config
+endif
 install:
-	sudo cp ./yona /usr/bin
-	# the '|| :' prevents make from saying there was an error
-	cp -n ./config/* -t $${XDG_CONFIG_DIR:-$(HOME)/.config}/yona || :
+	mkdir -p $(BINARY_DIR)
+	cp ./yona $(BINARY_DIR)
+	mkdir -p $(XDG_CONFIG_DIR)/yona
+	cp -n ./config/* -t $(XDG_CONFIG_DIR)/yona
 uninstall:
-	sudo rm /usr/bin/yona
+	rm $(BINARY_DIR)/yona
