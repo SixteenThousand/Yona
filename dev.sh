@@ -1,15 +1,3 @@
-START_DIR=$(pwd)
-TESTDATA=$(pwd)/scratch/testdata
-if [ "$(basename $PWD)" != Yona ]
-then
-	echo 'Please source this script from the project toplevel directory' >&2
-	exit 1
-fi
-mkdir --parents $TESTDATA
-cd $TESTDATA
-OLD_PS1=$PS1
-PS1='yona-dev: \w\n> '
-
 help() {
 	cat <<- EOF
 	Source (do not execute!) this script to access convenience functions for 
@@ -123,3 +111,17 @@ quit() {
 	PS1=$OLD_PS1
 	cd $START_DIR
 }
+
+
+START_DIR=$(pwd)
+TESTDATA=$(pwd)/scratch/testdata
+if [ "$(basename $PWD)" != Yona ]
+then
+	echo 'Please source this script from the project toplevel directory' >&2
+	exit 1
+fi
+mkdir --parents $TESTDATA
+cd $TESTDATA
+OLD_PS1=$PS1
+PS1='yona-dev: \w\n> '
+help
