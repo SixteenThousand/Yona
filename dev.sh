@@ -24,10 +24,11 @@ help() {
 	so if you want a Makefile & a .yona file, run
 	        project ./.yona ./Makefile
 	    clean
-	Remove current testign files from the above commands. Is run automatically
+	Remove current testing files from the above commands. Is run automatically
 	by the previous two commands
 	    quit
-	Go back to your normal shell session
+	Go back to your normal shell session; note that "CTRL-D" or "exit" will exit 
+	your shell session entirely, not just this script
 	EOF
 }
 

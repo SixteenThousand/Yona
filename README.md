@@ -7,9 +7,9 @@ ballooned into a mini-application. Its goals are twofold:
 
 1. To make it simple to get "code running" functionality in any code editor 
    with access to a terminal emulator.
-2. To make running project level commands (your testing, build script, etc.) 
-   from *anywhere* inside your project, not just the top level directory - 
-   which we call *project root*.
+2. To make it possible to run project level commands (your testing, build 
+   script, etc.) from *anywhere* inside your project, not just the top level 
+   directory (which we call *project root* here).
 
 It does (1) by taking the path to a file, figuring out its file type, and 
 then passing the relevant arguments to the relevant software to compile 
@@ -36,7 +36,7 @@ is specified.
 
 ### `yona --list [DIRECTORY]`
 
-List available commands. See [Project Commands](#project-commands) form more 
+List available commands. See [Project Commands](#project-commands) for more 
 information.
 
 ### `yona --shell {SHELL_COMMAND}`
