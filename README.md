@@ -19,99 +19,45 @@ It does (2) by taking a word - a *project command* - looking for a file in
 which this command is defined, and running the command in the directory 
 where the file was.
 
-## Usage
 
-```bash
-yona PROJECT_COMMAND
-yona [-l|--list] [DIRECTORY]
-yona [-f|--file] [run|compile] FILE
-yona [-s|--shell] SHELL_COMMAND
-```
+## Getting Started
 
-### `yona {PROJECT_COMMAND}`
+Yona is written in bash, version 5.2. It is not guaranteed to work with 
+older versions of bash. It also relies on other utilities, although all 
+utilities used should be common to any vaguely POSIX compliant OS.
+Currently the used utilities are:
+    - sed
+    - less
+    - wc
+    - xargs
 
-Run the shell script given by PROJECT_COMMAND at project root. See [Project 
-Commands](#project-commands) for more information on how a project command 
-is specified.
-
-### `yona --list [DIRECTORY]`
-
-List available commands. See [Project Commands](#project-commands) for more 
-information.
-
-### `yona --shell {SHELL_COMMAND}`
-
-Run SHELL_COMMAND at project root. See [Project Root](#project-root) for 
-more information.
-
-### `yona --file compile FILE_NAME`
-
-Compile FILE_NAME using the relevant software. Yona decides what software to 
-use based on the file extension of FILE_NAME; so, for example, `yona 
---single-file compile thing.c` will use `gcc`. What exactly is used for each 
-extension is specified in [the configuration](#configuration).
-
-If the relevant compilation process creates an executable, it will be named 
-with the form `NAME_PART.yonax`, where NAME_PART is FILE_NAME minus the file 
-extension. The extension used can be changed in the config file. 
-
-### `yona --file run FILE_NAME`
-
-Run FILE_NAME, whatever that means for the file type in question. Yona uses 
-the following algorithm to do this:
-1. yona looks for a file named `NAME_PART.yonax` (see the compile option 
-   above) to execute
-2. if no such file is found, yona looks for a run command to use in its 
-   configuration file (see [configuration](#configuration)
-
-
-## Project Commands
-
-A project command is one of:
-
-1. a command listed in a .yona file
-2. a make command
-3. a `package.json` script
-
-Project commands must be one word (i.e. a series of letters and `-` and `_` 
-not separated by blanks). Commands are prioritised in the order given above, 
-that is, yona will check for a `.yona`  file first and look for a `Makefile` 
-*if and only if no `.yona` file is found*, and then if there is no 
-`Makefile`, it will look for a `package.json`, and so on.
-
-## Project Root
-
-The "Project Root" of the current working directory is determined by yona 
-using the following algorithm:
-1. Check whether the current working directory contains a project commands 
-   file (the file types listed in [Project Commands](#project-commands)).
-   If it does, we are at project root.
-2. Check whether the current working directory is the root of a source 
-   control repository (currently only planned to support git and mercurial).
-3. If current working directory is the root of the system, stop & display an 
-   error message.
-4. Go to the parent directory. Go to step 1.
-
+To install yona, clone this repository and run `make build`. This will 
+combine all the bash scripts here into one, executable, script that you can 
+then just place anywhere on your `$PATH` to use. An `install` recipe is 
+provided, but the directory it uses is not guaranteed to be on your `$PATH`.
 
 ## Configuration
 
-The exact behaviour of yona can be configured using files in the directory
-`$XDG_CONFIG_DIR/yona` or `~/.config/yona`. This consists of three files, 
-`config.sh`, `run.sh` and `compile.sh`. These are shell scripts which set 
-environment variables yona uses when running.
+Yona is not configured; the only way to change its behaviour is to alter the 
+source code and rebuild. That being said, the porject has been structured to 
+make this relatively simple; just change the values of certain environment 
+variables in certain files, and you can extend yona to support your own 
+quirky programming language or task runner fairly easily.
 
-The most important settings are `COMPILERS` and `RUNNERS`. These sset the 
-shell commands used to run & compile individual 
-The shell command also uses the following substitutions:
+### run.bash & compile.bash
+
+The most important variables are `COMPILERS` and `RUNNERS`. These set the 
+shell commands used to run & compile individual files. The shell command 
+also uses the following substitutions:
 - %  -> the filename
 - %< -> the "name part" of the filename, i.e. the filename without extension
 - %+ -> the "name part" + the extension .yonax
 
-### Example
+#### example
 
-~/.config/run.sh
 ```bash
-RUNNERS=(
+# run.bash
+declare -a RUNNERS=(
     [go]="go run %"
     [py]="python3 %"
     [hs]="runghc %"
@@ -119,9 +65,9 @@ RUNNERS=(
 )
 ```
 
-~/.config/compile.sh
 ```bash
-COMPILERS=(
+# compile.bash
+declare -a COMPILERS=(
     [c]="gcc % -o %+"
     [go]="go build % -o %+"
     [hs]="ghc -Wno-tabs %"
@@ -136,19 +82,53 @@ You can also see here why the `run` and `compile` commands are separate: the
 Go language can be run directly with `go run`, but it can also be compiled 
 first. Having the commands be separate allows you to use go either way.
 
-You can also set a message to printed before & after running/compilation by 
-setting `START_MSG` & `END_MSG` in the `run.sh` & `compile.sh`.
+### task_runners.bash
 
-`config.sh` sets other options; look at the default version of it in the 
-configs directory for more information.
+This file sets the task runner information, as well as the priority order 
+for different task runners.
 
-<!-- exclude everything after this point from man page -->
-## Getting Started
+#### example
 
-Yona is written in bash version 5.2. It is not guaranteed to work on older 
-versions of bash. It also requires grep (a GNU coreutil) and jq 
-(<https://jqlang.github.io/jq/>) for parsing package.json files. If jq is 
-not installed, yona will just ignore package.json files.
+```bash
+# task_runners.bash
 
-To install yona, clone this repo and run `make install` you will need to 
-enter your system password to complete the installation.
+# The function name here is the task runner name (as in TASK_RUNNERS), # 
+prefixed by 'tr_'
+function tr_make {
+  # The command to run a task. Will be prefixed by the task name.
+	TR_RUNCMD=make
+  # The file in which this task runner keeps its tasks.
+  # Yona will match against this case insensitively.
+	TR_FILE=Makefile
+  # The command used to print a list of all tasks.
+  # The '%' here will be replaced by the name of the relevant task runner 
+  # file.
+	TR_LISTCMD='cat %'
+}
+
+function tr_npm {
+	TR_RUNCMD='npm run'
+	TR_FILE='package.json'
+	TR_LISTCMD='npm run'
+}
+
+function tr_just {
+	TR_RUNCMD='just'
+	TR_FILE='justfile'
+	TR_LISTCMD='just --list'
+}
+
+function tr_yona {
+	TR_RUNCMD='yona_taskrunner'
+	TR_FILE='.yona'
+  TR_LISTCMD='cat %'
+}
+
+# This sets the priority order for task runners, highest to lowest
+declare -a TASK_RUNNERS=(
+	yona
+	make
+	npm
+	just
+)
+```
