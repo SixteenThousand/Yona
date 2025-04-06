@@ -1,5 +1,6 @@
 yona: *.bash
 	echo -e '#!/bin/env bash\n' > yona
+	echo "YONA_VERSION="`git describe --tags --dirty` >> yona
 	cat \
 		task_runners.bash \
 		run.bash \
