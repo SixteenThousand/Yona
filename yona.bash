@@ -85,7 +85,8 @@ function get_project_root {
 }
 
 function get_size {
-  cd $(get_project_root)
+  get_project_root
+  cd $PROJECT_ROOT
   if [[ -n $1 ]]; then
     find -type f -name "*.$1" | xargs wc -l
   elif git status 2>&1 >/dev/null; then
@@ -95,6 +96,15 @@ function get_size {
   fi
 }
 
+function shell_cmd {
+  get_project_root
+  cd $PROJECT_ROOT
+  eval "$1"
+}
+
+function project_setup {
+  echo "TODO"
+}
 
 function yona_cmd {
   case $1 in
