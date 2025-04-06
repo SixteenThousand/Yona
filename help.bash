@@ -19,9 +19,6 @@ This script does 2 things:
     commands. 
       
   [33mCommands[0m
-    [34myona [-t|--task-runner TASK_RUNNER] PROJECT_COMMAND[0m
-      Find the nearest Makefile/whatever which has PROJECT_COMMAND as a 
-      recipe, and run that recipe.
     [34myona -l|--list [DIRECTORY][0m
       List the available project commands accesible from the current 
       directory. Commands will be listed in order for priority for use in 
