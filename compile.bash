@@ -1,13 +1,9 @@
-START_MSG="Preparing to compile...\n\n"
-END_MSG="\n\nCompiled! Maybe!"
-
 # What command should be run to compile each file extension
 # Uses substituions:
 # 	%  -> the filename
 # 	%< -> the "name part" of the filename, i.e. the filename without extension
 # 	%+ -> the "name part" + the extension .yonax
-declare -A COMPILERS
-COMPILERS=(
+declare -A COMPILERS=(
 	[c]="gcc -o %+ %"
 	[cpp]="g++ -o %+ %"
 	[go]="go build -o %+ %"

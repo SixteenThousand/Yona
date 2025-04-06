@@ -1,3 +1,67 @@
+# Get file extension, name, name part, & parent directory
+# Parameters:
+# $1 = The absolute path to the file
+function get_fileinfo {
+	PARENT=$(dirname $1)
+	NAME=$(basename $1)
+	NAME_PART=${NAME%%.*}
+	EXT=${NAME##*.}
+}
+
+# Does its level best to "run" the given file, whatever that may mean for that 
+# file. Mostly it will just choose the right interpreter for the job (python, 
+# lua, etc.), but if it finds an executable whose name is the "name part" of
+# the file, or the file itself is executable, it will try to run that instead.
+# Parameters:
+#	$1 = The absolute path to the file
+function run_file {
+	echo -e "Preparing to run...\n\n"
+  local end_msg="\n\nProgram might have run!"
+  local status_code
+	get_fileinfo $1
+	cd $PARENT
+  if [[ -x $NAME ]]; then
+    ./$NAME
+    status_code=$?
+    echo -e $end_msg
+    return $status_code
+  fi
+	if [[ -x "$NAME_PART" ]]; then
+		./$NAME_PART
+    status_code=$?
+    echo -e $end_msg
+    return $status_code
+	fi
+	if [[ -n "${RUNNERS[$EXT]}" ]]; then
+		# replace %< & % with name part & name, and then run it
+		local to_run=${RUNNERS[$EXT]/\%\</$NAME_PART}
+		to_run=${to_run/\%\+/$NAME_PART}
+		eval "${to_run/\%/$NAME}"
+    status_code=$?
+    echo -e $end_msg
+    return $status_code
+	fi
+}
+
+# Compiles the given file with the relevant program based on the file's 
+# extension.
+# Parameters:
+#	$1 = The absolute path to the file
+function compile_file {
+	echo -e "Preparing to compile...\n\n"
+	get_fileinfo $1
+	cd $PARENT
+	if [[ -n ${COMPILERS[$EXT]} ]]; then
+		# replace %< & % with name part & name, and then run it
+		local to_run=${COMPILERS[$EXT]/\%\</$NAME_PART}
+		to_run=${to_run/\%\+/$NAME_PART}
+		eval "${to_run/\%/$NAME}"
+    local status_code=$?
+		echo -e "\n\nCompiled! Maybe!"
+		return $status_code
+	fi
+}
+
 function yona_cmd {
   case $1 in
     -l|--list)
