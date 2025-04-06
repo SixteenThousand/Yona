@@ -75,7 +75,7 @@ This script does 2 things:
      outside a git repository, it will set project root to the current 
      working directory.
      
-     [33mTask Runners[0m
+   [33mTask Runners[0m
      Yona currently supports these task runners, ordered from highest 
      priority to least:
         $(echo ${TASK_RUNNERS[@]} | sed 's/ /\n        /g')
