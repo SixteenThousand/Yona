@@ -30,6 +30,7 @@ Currently the used utilities are:
     - less
     - wc
     - xargs
+    - find
 
 To install yona, clone this repository and run `make build`. This will 
 combine all the bash scripts here into one, executable, script that you can 

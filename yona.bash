@@ -62,6 +62,40 @@ function compile_file {
 	fi
 }
 
+function get_project_root {
+  PROJECT_ROOT=
+  local start_dir=$PWD
+  local dir
+  for tr in $TASK_RUNNERS; do
+    dir=$start_dir
+    eval "tr_$tr"
+    while [[ $dir != / ]]; do
+      if [[ -a $dir/$TR_FILE ]]; then
+        PROJECT_ROOT=$dir
+        return
+      else
+        dir=$(dirname $dir)
+      fi
+    done
+  done
+  PROJECT_ROOT=$(git rev-parse --show-toplevel)
+  if [[ -z $PROJECT_ROOT ]]; then
+    PROJECT_ROOT=$start_dir
+  fi
+}
+
+function get_size {
+  cd $(get_project_root)
+  if [[ -n $1 ]]; then
+    find -type f -name "*.$1" | xargs wc -l
+  elif git status 2>&1 >/dev/null; then
+    git ls-files | xargs wc -l
+  else
+    find -type f | xargs wc -l
+  fi
+}
+
+
 function yona_cmd {
   case $1 in
     -l|--list)
@@ -85,7 +119,7 @@ function yona_cmd {
       return
       ;;
     --size)
-      get_size
+      get_size "$2"
       return
       ;;
     -h|--help)
