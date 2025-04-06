@@ -1,36 +1,23 @@
-function main {
-  local cmd=$1
-  local arg=$2
-  shift 2
-  while [[ $# -gt 0 ]]; do
-    case $1 in
-      -n|--no-pager) NOPAGER=1;;
-      -t|--task-runner)
-        TASK_RUNNERS=( $2 )
-        shift
-        ;;
-    esac
-    shift
-  done
-  case $cmd in
+function yona_cmd {
+  case $1 in
     -l|--list)
-      list_tasks "$arg"
+      list_tasks "$2"
       return
       ;;
     -c|--compile)
-      compile_file "$arg"
+      compile_file "$2"
       return
       ;;
     -r|--run)
-      run_file "$arg"
+      run_file "$2"
       return
       ;;
     -s|--shell)
-      shell_cmd "$arg"
+      shell_cmd "$2"
       return
       ;;
     --setup)
-      project_setup "$arg"
+      project_setup "$2"
       return
       ;;
     --size)
@@ -46,19 +33,36 @@ function main {
       return
       ;;
     *)
-      run_task "$arg"
+      run_task "$2"
       return
       ;;
   esac
 }
 
+# get options and command
+cmd=$1
+arg=$2
+if [[ $cmd = '-v' || $cmd = '--version' ]]; then
+  NOPAGER=1
+fi
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -n|--no-pager) NOPAGER=1;;
+    -t|--task-runner)
+      TASK_RUNNERS=( $2 )
+      shift
+      ;;
+  esac
+  shift
+done
+
 # check if we're actually connected to a terminal
 if tty 2>&1 >/dev/null; then
   if [[ -z $NOPAGER ]]; then
-    main $@ | less -R
+    yona_cmd $cmd $arg | less -R
   else
-    main $@
+    yona_cmd $cmd $arg
   fi
 else
-  main $@ | sed -e 's/\x1b\[[^m][^m]*m//g'
+  yona_cmd $cmd $arg | sed -e 's/\x1b\[[^m][^m]*m//g'
 fi
