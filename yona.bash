@@ -1,3 +1,8 @@
+function error {
+  echo -e "\x1b[31mYona Error: $1\x1b[0m" >&2
+  return 2
+}
+
 # Get file extension, name, name part, & parent directory
 # Parameters:
 # $1 = The absolute path to the file
@@ -62,11 +67,16 @@ function compile_file {
 	fi
 }
 
+function yona_taskrunner {
+  source .yona
+  eval "$1"
+}
+
 function get_project_root {
   PROJECT_ROOT=
   local start_dir=$PWD
   local dir
-  for tr in $TASK_RUNNERS; do
+  for tr in ${TASK_RUNNERS[@]}; do
     dir=$start_dir
     eval "tr_$tr"
     while [[ $dir != / ]]; do
@@ -104,6 +114,57 @@ function shell_cmd {
 
 function project_setup {
   echo "TODO"
+}
+
+function process_tr_vars {
+  TR_TESTCMD=${TR_TESTCMD/\%t/$1}
+  TR_TESTCMD=${TR_TESTCMD/\%f/$TR_FILE}
+  TR_LISTCMD=${TR_LISTCMD/\%t/$1}
+  TR_LISTCMD=${TR_LISTCMD/\%f/$TR_FILE}
+}
+
+function list_tasks {
+  local start_dir=$PWD
+  local dir
+  local path
+  for tr in ${TASK_RUNNERS[@]}; do
+    dir=$start_dir
+    eval "tr_$tr"
+    process_tr_vars $1
+    while [[ $dir != / ]]; do
+      path=$dir/$TR_FILE
+      if [[ -a $path ]]; then
+        echo -e "\x1b[1;36m${path}"
+        printf '\x1b[36m'
+        printf '=%.0s' $(seq ${#path})
+        printf '\x1b[0m\n'
+        eval "$TR_LISTCMD"
+      fi
+      dir=$(dirname $dir)
+    done
+  done
+}
+
+function run_task {
+  local start_dir=$PWD
+  local dir
+  local path
+  for tr in ${TASK_RUNNERS[@]}; do
+    dir=$start_dir
+    eval "tr_$tr"
+    process_tr_vars $1
+    while [[ $dir != / ]]; do
+      if [[ -a $dir/$TR_FILE ]]; then
+        cd $dir
+        if eval "${TR_TESTCMD} $1" 2>&1 >/dev/null; then
+          eval "${TR_RUNCMD} $1"
+          return
+        fi
+      fi
+      dir=$(dirname $dir)
+    done
+  done
+  error 'Invalid task name!'
 }
 
 function yona_cmd {
