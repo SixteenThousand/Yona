@@ -1,26 +1,43 @@
-help() {
-	cat <<- EOF
-	Source (do not execute!) this script to access convenience functions for 
-	interactive testing. Run 'help' to see what functions are available
-
-	Usage:
-	    single_file
-	Make files for testing single file mode
-	    project {path}/{package.json,Makefile,.yona}
-	Make files & directories for testing project mode.
-	The any number of the options in the braces can be specified,
-	so if you want a Makefile & a .yona file, run
-	        project ./.yona ./Makefile
-	    clean
-	Remove current testing files from the above commands. Is run automatically
-	by the previous two commands
-	    quit
-	Go back to your normal shell session; note that "CTRL-D" or "exit" will exit 
-	your shell session entirely, not just this script
-	EOF
+function main {
+  local tests="$(declare -F | cut -d ' ' -f 3 | grep --color=never '^test_')"
+  local test_count="$(echo $tests | wc -w)"
+  local err_count
+  declare -i err_count=0
+  for t in $tests; do
+    if ! $t; then
+      printf "\x1b[31m${t} failed!\x1b[0m\n"
+      : $((err_count++))
+    fi
+  done
+  if [[ $err_count = 0 ]]; then
+    printf "\x1b[1;32mAll ${test_count} tests passed!\x1b[0m\n"
+  else
+    printf "\x1b[1;31m${err_count} of ${test_count} tests failed!\x1b[0m\n"
+  fi
 }
 
-clean() {
+function assert_output {
+  local cmd=$1
+  local expected=$2
+  local got=$($cmd)
+  if [[ $got != $expected ]]; then
+    cat <<- EOF
+Failure, line $(caller)
+Output of Command <$cmd>:
+expected:
+  <$expected>
+got:
+  <$got>
+EOF
+    return 2
+  fi
+}
+
+function test_compile {
+  assert_output 'echo goat' goat
+}
+
+function teardown {
 	cd $TESTDATA
 	if [ -n "$TESTDATA" ]
 	then
@@ -102,26 +119,4 @@ project() {
 	cd $OLD_DIR
 }
 
-yona() {
-	$START_DIR/yona $@
-}
-
-quit() {
-	unset -f help clean single_file project yona
-	PS1=$OLD_PS1
-	cd $START_DIR
-}
-
-
-START_DIR=$(pwd)
-TESTDATA=$(pwd)/scratch/testdata
-if [ "$(basename $PWD)" != Yona ]
-then
-	echo 'Please source this script from the project toplevel directory' >&2
-	exit 1
-fi
-mkdir --parents $TESTDATA
-cd $TESTDATA
-OLD_PS1=$PS1
-PS1='yona-dev: \w\n> '
-help
+main >&2
