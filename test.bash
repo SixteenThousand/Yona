@@ -1,10 +1,17 @@
 function main {
-  local tests="$(declare -F | cut -d ' ' -f 3 | grep --color=never '^test_')"
+  printf '\x1b[1;35m========== Tests ==========\x1b[0m\n'
+  # export assert functions so tests can use them when running in subshells;
+  # see below
+  local asserts="$(declare -F | cut -d ' ' -f 3 | grep '^assert')"
+  export -f $asserts
+  local tests="$(declare -F | cut -d ' ' -f 3 | grep '^test_')"
   local test_count="$(echo $tests | wc -w)"
   local err_count
   declare -i err_count=0
   for t in $tests; do
-    if ! $t; then
+    # We run each test in a subshell so that asserts can use the exit builtin
+    export -f $t
+    if ! bash -c $t; then
       printf "\x1b[31m${t} failed!\x1b[0m\n"
       : $((err_count++))
     fi
@@ -29,7 +36,7 @@ expected:
 got:
   <$got>
 EOF
-    return 2
+    exit 1
   fi
 }
 
