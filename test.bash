@@ -9,12 +9,14 @@ function main {
   local err_count
   declare -i err_count=0
   for t in $tests; do
+    setup
     # We run each test in a subshell so that asserts can use the exit builtin
     export -f $t
     if ! bash -c $t; then
       printf "\x1b[31m${t} failed!\x1b[0m\n"
       : $((err_count++))
     fi
+    teardown
   done
   if [[ $err_count = 0 ]]; then
     printf "\x1b[1;32mAll ${test_count} tests passed!\x1b[0m\n"
@@ -40,17 +42,18 @@ EOF
   fi
 }
 
-function test_compile {
-  assert_output 'echo goat' goat
+function assert {
+  if ! [[ $@ ]]; then
+    exit 1
+  fi
+}
+
+function setup {
+  TESTDATA="$(mktemp -d yonatest-XXX)"
 }
 
 function teardown {
-	cd $TESTDATA
-	if [ -n "$TESTDATA" ]
-	then
-		rm -rf $TESTDATA/*
-		rm -rf $TESTDATA/.*
-	fi
+  rm -r $TESTDATA
 }
 
 single_file() {
