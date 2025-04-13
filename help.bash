@@ -23,7 +23,7 @@ This script does 2 things:
       List the available project commands accesible from the current 
       directory. Commands will be listed in order for priority for use in 
       "yona PROJECT_COMMAND".
-    [34myona -c|--complie FILE[0m
+    [34myona -c|--compile FILE[0m
       Attempt to compile FILE using the relevant command.
     [34myona -r|--run FILE[0m
       Attempt to run FILE using the relevant command.
@@ -49,12 +49,12 @@ This script does 2 things:
     [34myona -v|--version[0m
       Print version information
     
-    [33mOptions[0m
-      [34m-n|--no-pager[0m
-        Do not page output with less.
-      [34m-t|--task-runner TASK_RUNNER[0m
-        Limit search for task runner files/project commands/project root to 
-        TASK_RUNNER.
+   [33mOptions[0m
+     [34m-n|--no-pager[0m
+       Do not page output with less.
+     [34m-t|--task-runner TASK_RUNNER[0m
+       Limit search for task runner files/project commands/project root to 
+       TASK_RUNNER.
     
    [33mProject Root[0m
      The ancestor directory (that is, parent, or parent of parent, or parent 
