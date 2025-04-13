@@ -6,19 +6,18 @@ function main {
   export -f $asserts
   local tests="$(declare -F | cut -d ' ' -f 3 | grep '^test_')"
   local test_count="$(echo $tests | wc -w)"
-  local err_count
   declare -i err_count=0
   for t in $tests; do
     setup
     # We run each test in a subshell so that asserts can use the exit builtin
     export -f $t
-    if ! bash -c $t; then
+    if ! bash --norc --noprofile -c $t; then
       printf "\x1b[31m${t} failed!\x1b[0m\n"
       : $((err_count++))
     fi
     teardown
   done
-  if [[ $err_count = 0 ]]; then
+  if [[ "$err_count" = 0 ]]; then
     printf "\x1b[1;32mAll ${test_count} tests passed!\x1b[0m\n"
   else
     printf "\x1b[1;31m${err_count} of ${test_count} tests failed!\x1b[0m\n"
@@ -29,14 +28,14 @@ function assert_output {
   local cmd=$1
   local expected=$2
   local got=$($cmd)
-  if [[ $got != $expected ]]; then
+  if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
 Failure, line $(caller)
-Output of Command <$cmd>:
+Output of Command <${cmd}>:
 expected:
-  <$expected>
+  <${expected}>
 got:
-  <$got>
+  <${got}>
 EOF
     exit 1
   fi
@@ -44,6 +43,39 @@ EOF
 
 function assert {
   if ! [[ $@ ]]; then
+    cat <<- EOF
+Failure, line $(caller)
+Test
+  [[ $@ ]]
+failed
+EOF
+    exit 1
+  fi
+}
+
+function assert_retcode {
+  local cmd=$1
+  local expected=$2
+  $cmd
+  local got="$?"
+  if [[ "$got" != "$expected" ]]; then
+    cat <<- EOF
+Failure, line $(caller)
+Expected return code <${expected}>
+from command <${cmd}>,
+but got <${got}>
+EOF
+    exit 1
+  fi
+}
+
+function assert_run {
+  local cmd=$1
+  if ! ${cmd}; then
+    cat <<- EOF
+Failure, line $(caller)
+Command <${cmd}> failed
+EOF
     exit 1
   fi
 }

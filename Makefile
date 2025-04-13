@@ -11,7 +11,7 @@ yona: *.bash
 	chmod +x yona
 build: yona
 test: yona
-	bash test.bash
+	bash --noprofile --norc test.bash
 
 BINARY_DIR=$(HOME)/.local/bin
 install:
