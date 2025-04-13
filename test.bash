@@ -1,5 +1,10 @@
 ## Mini testing framework for bash
 function main {
+  local stderr_dst=/dev/null
+  if [[ -n $1 && $1 -gt 0 ]]; then
+    stderr_dst=/dev/stdout
+  fi
+  echo $1
   printf '\x1b[1;35m========== Tests ==========\x1b[0m\n'
   # export assert functions so tests can use them when running in subshells;
   # see below
@@ -12,7 +17,7 @@ function main {
     setup
     # We run each test in a subshell so that asserts can use the exit builtin
     export -f $t
-    if ! bash --norc --noprofile -c $t; then
+    if ! bash --norc --noprofile -c $t 2>$stderr_dst; then
       printf "\x1b[31m${t} failed!\x1b[0m\n"
       : $((err_count++))
     fi
@@ -200,4 +205,4 @@ EOF
 
 
 ## Now to actually run all these lovely tests...
-main >&2
+main $@ >&2
