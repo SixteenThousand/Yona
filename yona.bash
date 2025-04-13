@@ -247,7 +247,7 @@ fi
 # check if we're actually connected to a terminal
 if tty 2>&1 >/dev/null; then
   if [[ -z $NOPAGER ]]; then
-    yona_cmd $cmd $arg | less -R
+    yona_cmd $cmd $arg 2>&1 | less -R
   else
     yona_cmd $cmd $arg
   fi
