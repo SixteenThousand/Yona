@@ -30,7 +30,6 @@ function assert_output {
   local got=$($cmd)
   if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
-Failure, line $(caller)
 Output of Command <${cmd}>:
 expected:
   <${expected}>
@@ -44,7 +43,6 @@ EOF
 function assert {
   if ! [[ $@ ]]; then
     cat <<- EOF
-Failure, line $(caller)
 Test
   [[ $@ ]]
 failed
@@ -60,7 +58,6 @@ function assert_retcode {
   local got="$?"
   if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
-Failure, line $(caller)
 Expected return code <${expected}>
 from command <${cmd}>,
 but got <${got}>
@@ -73,7 +70,6 @@ function assert_run {
   local cmd=$1
   if ! ${cmd}; then
     cat <<- EOF
-Failure, line $(caller)
 Command <${cmd}> failed
 EOF
     exit 1
