@@ -7,8 +7,8 @@ function main {
   printf '\x1b[1;35m========== Tests ==========\x1b[0m\n'
   # export assert functions so tests can use them when running in subshells;
   # see below
-  local asserts="$(declare -F | cut -d ' ' -f 3 | grep '^assert')"
-  export -f $asserts
+  local helpers="$(declare -F | cut -d ' ' -f 3 | grep '^assert\|helper')"
+  export -f $helpers
   local tests="$(declare -F | cut -d ' ' -f 3 | grep '^test_')"
   local test_count="$(echo $tests | wc -w)"
   declare -i err_count=0
@@ -83,22 +83,22 @@ EOF
 
 
 ## Help functions for tests
-function dump_makefile {
+function helper_makefile {
   # can't use cat here; need actual tab characters
-  echo -e "makeCommand:\n\techo "\
-    "Running a command from a makefile!"\
-    "\nbuild:\n\techo '${1}'"
+  echo -e "makeCommand:\n\tpwd"\
+    "\nbuild:\n\techo '${1}'" \
+    > $2/Makefile
 }
 
-function dump_npmfile {
-  cat <<- EOF
+function helper_npmfile {
+  cat > $2/package.json <<- EOF
 {
   "name": "temp",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "npmCommand": "echo Running an npm script!",
+    "npmCommand": "pwd",
   "build": "echo '${1}'",
     "test": "echo tests!"
   },
@@ -109,10 +109,13 @@ function dump_npmfile {
 EOF
 }
 
-function dump_dotyonafile {
-  cat > .yona <<- EOF
+function helper_dotyonafile {
+  cat > $2/.yona <<- EOF
 function build {
   echo '${1}'
+}
+function dotyonaCommand {
+  pwd
 }
 EOF
 }
@@ -123,7 +126,7 @@ function setup {
   STARTDIR="$PWD"
   TESTDATA="$(mktemp -d yonatest-XXX)"
   cd "$TESTDATA"
-  export YONA='../yona --no-pager'
+  export YONA="${STARTDIR}/yona --no-pager"
 }
 
 function teardown {
@@ -200,6 +203,54 @@ EOF
   assert -e "${name_part}.class"
   assert_output "java '$(basename $name_part)'" "$msg"
   assert_output "$YONA --run '$file'" "$msg"
+}
+
+function test_extension_handling {
+  local file='sea.ocean.c'
+  local msg='I love the Ocean'
+  cat > "$file" <<- EOF
+#include <stdio.h>
+int main() {
+  printf("${msg}");
+}
+EOF
+  $YONA -c "$file"
+  assert_output "$YONA -r '$file'" "$msg"
+}
+
+function test_shebang {
+  local file=shebang
+  local msg='Hello, Shebang!'
+  echo -e "#!/bin/env python3\nprint('${msg}')" > "$file"
+  chmod +x "$file"
+  assert_output "$YONA -r '${file}'" "$msg"
+}
+
+function test_list {
+  mkdir -p deep/project
+  helper_makefile 'This will never be used' .
+  helper_makefile '-' ./deep
+  helper_npmfile '-' ./deep/project
+  helper_dotyonafile '-' ./deep
+  cd deep/project
+  assert_output "$YONA --list | sed -n '/^[^;]\\+;/p'" 'yona; ../.yona
+make; ../Makefile
+npm; package.json'
+}
+
+function test_tr_priority {
+  local start_dir="$PWD"
+  mkdir -p deep/project
+  local dotyona_msg='dotyona!'
+  local npm_msg='npm!'
+  helper_makefile 'make!' ./deep
+  helper_makefile 'This will never be used' .
+  helper_npmfile "$npm_msg" ./deep/project
+  helper_dotyonafile "$dotyona_msg" .
+  cd deep/project
+  assert_output "$YONA build" "$dotyona_msg"
+  assert_output "$YONA --task-runner npm build" "$npm_msg"
+  assert_output "$YONA makeCommand" "$start_dir/deep"
 }
 
 
