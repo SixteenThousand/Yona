@@ -2,7 +2,7 @@
 
 *The script that stands in the blush of the build*
 
-This is Yona, shell script (originally powershell, now bash) that has 
+This is Yona, shell script (originally PowerShell, now bash) that has 
 ballooned into a mini-application. Its goals are twofold:
 
 1. To make it simple to get "code running" functionality in any code editor 
@@ -34,7 +34,7 @@ Currently the used utilities are:
     - grep
     - m4 (only needed for building)
 
-To install yona, clone this repository and run `make build`. This will 
+To install Yona, clone this repository and run `make build`. This will 
 combine all the bash scripts here into one, executable, script that you can 
 then just place anywhere on your `$PATH` to use. An `install` recipe is 
 provided, but the directory it uses is not guaranteed to be on your `$PATH`.
@@ -42,9 +42,9 @@ provided, but the directory it uses is not guaranteed to be on your `$PATH`.
 ## Configuration
 
 Yona is not configured; the only way to change its behaviour is to alter the 
-source code and rebuild. That being said, the porject has been structured to 
+source code and rebuild. That being said, the project has been structured to 
 make this relatively simple; just change the values of certain environment 
-variables in certain files, and you can extend yona to support your own 
+variables in certain files, and you can extend Yona to support your own 
 quirky programming language or task runner fairly easily.
 
 ### run.bash & compile.bash
@@ -54,7 +54,7 @@ shell commands used to run & compile individual files. The shell command
 also uses the following substitutions:
 - %  -> the filename
 - %< -> the "name part" of the filename, i.e. the filename without extension
-- %+ -> the "name part" + the extension .yonax
+- %+ -> the "name part" + the extension `.yonax`
 
 #### example
 
