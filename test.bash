@@ -9,10 +9,12 @@ function main {
   # see below
   local helpers="$(declare -F | cut -d ' ' -f 3 | grep '^assert\|helper')"
   export -f $helpers
-  local tests="$(declare -F | cut -d ' ' -f 3 | grep '^test_')"
-  local test_count="$(echo $tests | wc -w)"
+  if [[ -z $TESTS ]]; then
+    declare -xa TESTS="$(declare -F | cut -d ' ' -f 3 | grep '^test_')"
+  fi
+  local test_count="$(echo $TESTS | wc -w)"
   declare -i err_count=0
-  for t in $tests; do
+  for t in $TESTS; do
     setup
     # We run each test in a subshell so that asserts can use the exit builtin
     export -f $t
@@ -123,10 +125,10 @@ EOF
 
 ## Setup and teardown for each test
 function setup {
+  cd /tmp
   STARTDIR="$PWD"
   TESTDATA="$(mktemp -d yonatest-XXX)"
   cd "$TESTDATA"
-  export YONA="${STARTDIR}/yona --no-pager"
 }
 
 function teardown {
@@ -253,6 +255,24 @@ function test_tr_priority {
   assert_output "$YONA makeCommand" "$start_dir/deep"
 }
 
+function test_project_root {
+  local start_dir="$PWD"
+  local yona_cmd="$YONA --shell pwd"
+  mkdir -p deep/project
+  cd deep/project
+  assert_output "$yona_cmd" "$PWD"
+  mkdir "$start_dir/deep/.git"
+  assert_output "$yona_cmd" "$start_dir/deep"
+  touch "${start_dir}/Makefile" "${start_dir}/deep/project/.yona"
+  assert_output "$yona_cmd" "${start_dir}/deep"
+  assert_output "$yona_cmd -t make" "${start_dir}"
+}
+
 
 ## Now to actually run all these lovely tests...
+# with a little setup of course
+export YONA="${PWD}/yona --no-pager"
+# Uncomment this line and put the names of the tests you want to run in the
+# brackets. This is how you skip tests
+# declare -xa TESTS=()
 main $@ >&2
