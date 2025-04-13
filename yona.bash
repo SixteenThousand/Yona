@@ -34,7 +34,7 @@ function get_fileinfo {
 # Parameters:
 #	$1 = The absolute path to the file
 function run_file {
-	echo -e "Preparing to run...\n\n"
+	echo -e "Preparing to run...\n\n" >&2
   local end_msg="\n\nProgram might have run!"
   local status_code
 	get_fileinfo $1
@@ -42,13 +42,13 @@ function run_file {
   if [[ -x $NAME ]]; then
     ./$NAME
     status_code=$?
-    echo -e $end_msg
+    echo -e $end_msg >&2
     return $status_code
   fi
 	if [[ -x "$NAME_PART" ]]; then
 		./$NAME_PART
     status_code=$?
-    echo -e $end_msg
+    echo -e $end_msg >&2
     return $status_code
 	fi
 	if [[ -n "${RUNNERS[$EXT]}" ]]; then
@@ -57,7 +57,7 @@ function run_file {
 		to_run=${to_run/\%\+/$NAME_PART}
 		eval "${to_run/\%/$NAME}"
     status_code=$?
-    echo -e $end_msg
+    echo -e $end_msg >&2
     return $status_code
 	fi
 }
@@ -67,7 +67,7 @@ function run_file {
 # Parameters:
 #	$1 = The absolute path to the file
 function compile_file {
-	echo -e "Preparing to compile...\n\n"
+	echo -e "Preparing to compile...\n\n" >&2
 	get_fileinfo $1
 	cd $PARENT
 	if [[ -n ${COMPILERS[$EXT]} ]]; then
@@ -76,7 +76,7 @@ function compile_file {
 		to_run=${to_run/\%\+/$NAME_PART}
 		eval "${to_run/\%/$NAME}"
     local status_code=$?
-		echo -e "\n\nCompiled! Maybe!"
+		echo -e "\n\nCompiled! Maybe!" >&2
 		return $status_code
 	fi
 }
