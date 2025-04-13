@@ -4,7 +4,6 @@ function main {
   if [[ -n $1 && $1 -gt 0 ]]; then
     stderr_dst=/dev/stdout
   fi
-  echo $1
   printf '\x1b[1;35m========== Tests ==========\x1b[0m\n'
   # export assert functions so tests can use them when running in subshells;
   # see below
@@ -33,7 +32,7 @@ function main {
 function assert_output {
   local cmd=$1
   local expected=$2
-  local got=$($cmd)
+  local got=$(eval "$cmd")
   if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
 Output of Command <${cmd}>:
@@ -60,7 +59,7 @@ EOF
 function assert_retcode {
   local cmd=$1
   local expected=$2
-  $cmd
+  eval "$cmd"
   local got="$?"
   if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
@@ -74,7 +73,7 @@ EOF
 
 function assert_run {
   local cmd=$1
-  if ! ${cmd}; then
+  if ! eval "$cmd"; then
     cat <<- EOF
 Command <${cmd}> failed
 EOF
@@ -189,7 +188,7 @@ EOF
 function test_java {
   local file="${PWD}/Jarvah.java"
   local msg='Hello, World! - from Java!'
-  local exe="${file%.java}.class"
+  local name_part="${file%.java}"
   cat > "$file" <<- EOF
 class Jarvah {
   public static void main(String[] args) {
@@ -198,8 +197,8 @@ class Jarvah {
 }
 EOF
   $YONA --compile "$file"
-  assert -e "$exe"
-  assert_output "java '$exe'" "$msg"
+  assert -e "${name_part}.class"
+  assert_output "java '$(basename $name_part)'" "$msg"
   assert_output "$YONA --run '$file'" "$msg"
 }
 
