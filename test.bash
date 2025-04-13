@@ -32,7 +32,7 @@ function main {
 function assert_output {
   local cmd=$1
   local expected=$2
-  local got=$(eval "$cmd")
+  local got="$(eval "$cmd")"
   if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
 Output of Command <${cmd}>:
