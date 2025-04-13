@@ -223,11 +223,6 @@ function yona_cmd {
 }
 
 # get options and command
-cmd=$1
-arg=$2
-if [[ $cmd = '-v' || $cmd = '--version' ]]; then
-  NOPAGER=1
-fi
 while [[ $# -gt 0 ]]; do
   case $1 in
     -n|--no-pager) NOPAGER=1;;
@@ -235,9 +230,19 @@ while [[ $# -gt 0 ]]; do
       TASK_RUNNERS=( $2 )
       shift
       ;;
+    *)
+      if [[ -z $cmd ]]; then
+        cmd=$1
+      else
+        arg=$1
+      fi
   esac
   shift
 done
+# This was the only way. Belive me.
+if [[ $cmd = '-v' || $cmd = '--version' ]]; then
+  NOPAGER=1
+fi
 
 # check if we're actually connected to a terminal
 if tty 2>&1 >/dev/null; then
