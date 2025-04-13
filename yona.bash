@@ -1,3 +1,17 @@
+#!/usr/bin/env bash
+
+# This will have a trailing newline
+YONA_VERSION='m4_syscmd(git describe --tags --dirty)'
+
+
+m4_include(help.bash)
+
+m4_include(task_runners.bash)
+
+m4_include(run.bash)
+
+m4_include(compile.bash)
+
 function error {
   echo -e "\x1b[31mYona Error: $1\x1b[0m" >&2
   return 2
@@ -198,7 +212,7 @@ function yona_cmd {
       return
       ;;
     -v|--version)
-      echo -e "Yona, \x1b[3mThe script that stands in the blush of the build\x1b[0m, version $YONA_VERSION"
+      printf "Yona, version $YONA_VERSION\x1b[3mThe script that stands in the blush of the build\x1b[0m\n"
       return
       ;;
     *)

@@ -32,6 +32,7 @@ Currently the used utilities are:
     - xargs
     - find
     - grep
+    - m4 (only needed for building)
 
 To install yona, clone this repository and run `make build`. This will 
 combine all the bash scripts here into one, executable, script that you can 

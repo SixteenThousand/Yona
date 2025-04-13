@@ -1,13 +1,5 @@
 yona: *.bash
-	echo -e '#!/bin/env bash\n' > yona
-	echo "YONA_VERSION="`git describe --tags --dirty` >> yona
-	cat \
-		help.bash \
-		task_runners.bash \
-		run.bash \
-		compile.bash \
-		yona.bash \
-		>> yona
+	m4 --prefix-builtins yona.bash > yona
 	chmod +x yona
 build: yona
 test: yona
