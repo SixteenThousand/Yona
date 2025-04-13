@@ -1,3 +1,4 @@
+## Mini testing framework for bash
 function main {
   printf '\x1b[1;35m========== Tests ==========\x1b[0m\n'
   # export assert functions so tests can use them when running in subshells;
@@ -76,85 +77,127 @@ EOF
   fi
 }
 
+
+## Help functions for tests
+function dump_makefile {
+  # can't use cat here; need actual tab characters
+  echo -e "makeCommand:\n\techo "\
+    "Running a command from a makefile!"\
+    "\nbuild:\n\techo '${1}'"
+}
+
+function dump_npmfile {
+  cat <<- EOF
+{
+  "name": "temp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "npmCommand": "echo Running an npm script!",
+  "build": "echo '${1}'",
+    "test": "echo tests!"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+EOF
+}
+
+function dump_dotyonafile {
+  cat > .yona <<- EOF
+function build {
+  echo '${1}'
+}
+EOF
+}
+
+
+## Setup and teardown for each test
 function setup {
+  STARTDIR="$PWD"
   TESTDATA="$(mktemp -d yonatest-XXX)"
+  cd "$TESTDATA"
+  export YONA='../yona --no-pager'
 }
 
 function teardown {
-  rm -r $TESTDATA
-}
-
-single_file() {
-	OLD_DIR=$PWD
-	cd $TESTDATA
-	clean
-	cat > hello.go <<- EOF
-	package main
-	func main() {
-	    println("Hello, World! - from Go!")
-	}
-	EOF
-	cat > hello.c <<- EOF
-	#include <stdio.h>
-	int main() {
-	    printf("Hello, World! - from C!\n");
-	}
-	EOF
-	cat > hello.py <<- EOF
-	print("Hello, World! - from python!")
-	EOF
-	cat > Hello.java <<- EOF
-	class Hello {
-	    public static void main(String[] args) {
-	        System.out.println("Hello, World! - from Java!");
-		}
-	}
-	EOF
-	cd $OLD_DIR
+  cd "$STARTDIR"
+  rm -r "$TESTDATA"
 }
 
 
-project() {
-	OLD_DIR=$PWD
-	cd $TESTDATA
-	clean
-	mkdir -p very/deep/project
-	mkdir .git
-	for arg in $@
-	do
-		case $arg in
-			*Makefile)
-				echo -e "makeCommand:\n\techo "\
-					"Running a command from a makefile!"\
-					"\nbuild:\n\techo '+++make build recipe+++'" \
-					> $arg
-				;;
-			*.yona)
-				cat > $arg <<- EOF
-				yonaCommand = echo "Running a command from a .yona file!"
-				build = echo '+++yona build script+++'
-				EOF
-				;;
-			*package.json)
-				cat > $arg <<- EOF
-				{
-				  "name": "temp",
-				  "version": "1.0.0",
-				  "description": "",
-				  "main": "index.js",
-				  "scripts": {
-					"npmCommand": "echo Running an npm script!",
-					"build": "echo +++npm build script+++"
-				  },
-				  "keywords": [],
-				  "author": "",
-				  "license": "ISC"
-				}
-				EOF
-				;;
-		esac
-	done
-	cd $OLD_DIR
+## FINALLY! The actual goddamn tests!!
+function test_c {
+  local msg='Hello, World! - from C!'
+  local file="${PWD}/see.c"
+	cat > "$file" <<- EOF
+#include <stdio.h>
+int main() {
+    printf("${msg}");
+}
+EOF
+  $YONA --compile "$file" -n >/dev/null
+  local exe="${file%.c}"
+  assert -x "$exe"
+  assert_output "$exe" "$msg"
+  assert_output "$YONA --run '$file'" "$msg"
 }
 
+function test_go {
+  local msg='Hello, World! - from Go!'
+  local file="${PWD}/goe.go"
+  cat > "$file" <<- EOF
+package main
+import "fmt"
+func main() {
+  fmt.Println("${msg}")
+}
+EOF
+  assert_output "$YONA --run '${file}'" "$msg"
+  $YONA --compile "$file"
+  local exe="${file%.go}"
+  # Change the file so that we can check that we run the compiled version
+  # later
+  cat > "$file" <<- EOF
+package main
+import "fmt"
+func main() {
+  fmt.Println("You should never see this message")
+}
+EOF
+  assert -x "$exe"
+  assert_output "$exe" "$msg"
+  assert_output "$YONA --run '${file}'" "$msg"
+}
+
+function test_python {
+  local file="${PWD}/pighthon.py"
+  local msg='Hello, World! - from python!'
+  cat > "$file" <<- EOF
+print("${msg}")
+EOF
+  assert_output "$YONA --run '$file'" "$msg"
+}
+
+function test_java {
+  local file="${PWD}/Jarvah.java"
+  local msg='Hello, World! - from Java!'
+  local exe="${file%.java}.class"
+  cat > "$file" <<- EOF
+class Jarvah {
+  public static void main(String[] args) {
+    System.out.println("${msg}");
+  }
+}
+EOF
+  $YONA --compile "$file"
+  assert -e "$exe"
+  assert_output "java '$exe'" "$msg"
+  assert_output "$YONA --run '$file'" "$msg"
+}
+
+
+## Now to actually run all these lovely tests...
 main >&2
