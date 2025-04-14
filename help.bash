@@ -71,9 +71,7 @@ This script does 2 things:
      until all kinds of task runner files have been found
      
      If no task runner files are present in any ancestor directory, yona 
-     will set project root to be the root of the git repository, and if 
-     outside a git repository, it will set project root to the current 
-     working directory.
+     will return an error.
      
    [33mTask Runners[0m
      Yona currently supports these task runners, ordered from highest 

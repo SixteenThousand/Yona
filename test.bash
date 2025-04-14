@@ -270,13 +270,13 @@ function test_project_root {
   local start_dir="$PWD"
   local yona_cmd="$YONA --shell pwd"
   mkdir -p deep/project
-  cd deep/project
-  assert_output "$yona_cmd" "$PWD"
-  mkdir "$start_dir/deep/.git"
-  assert_output "$yona_cmd" "$start_dir/deep"
-  touch "${start_dir}/Makefile" "${start_dir}/deep/project/.yona"
-  assert_output "$yona_cmd" "${start_dir}/deep"
-  assert_output "$yona_cmd -t make" "${start_dir}"
+  cd "${start_dir}/deep/project"
+  assert_retcode "$yona_cmd" 1
+  touch "${start_dir}/deep/project/Makefile"
+  touch "${start_dir}/.yona"
+  touch "${start_dir}/deep/Makefile"
+  assert_output "$yona_cmd" "${start_dir}"
+  assert_output "$yona_cmd -t make" "${start_dir}/deep/project"
 }
 
 
