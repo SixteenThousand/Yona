@@ -34,6 +34,7 @@ function main {
 function assert_output {
   local cmd=$1
   local expected=$2
+  local working_dir=$PWD
   local got="$(eval "$cmd")"
   if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
@@ -42,6 +43,8 @@ expected:
   <${expected}>
 got:
   <${got}>
+working directory:
+  <${working_dir}>:
 EOF
     exit 1
   fi
@@ -61,13 +64,18 @@ EOF
 function assert_retcode {
   local cmd=$1
   local expected=$2
+  local working_dir=$PWD
   eval "$cmd"
   local got="$?"
   if [[ "$got" != "$expected" ]]; then
     cat <<- EOF
-Expected return code <${expected}>
-from command <${cmd}>,
-but got <${got}>
+Incorrect exit code from <${cmd}>
+expected:
+  <${expected}>
+got:
+  <${got}>
+working directory:
+  <${working_dir}>
 EOF
     exit 1
   fi
@@ -75,9 +83,12 @@ EOF
 
 function assert_run {
   local cmd=$1
+  local working_dir=$PWD
   if ! eval "$cmd"; then
     cat <<- EOF
 Command <${cmd}> failed
+working directory:
+  <${working_dir}>
 EOF
     exit 1
   fi
