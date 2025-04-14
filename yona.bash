@@ -12,9 +12,14 @@ m4_include(run.bash)
 
 m4_include(compile.bash)
 
+# Print a formatted message to stderr and exit the current shell.
+# Note that this may not cause yona to exit
+# Parameters:
+# $1 = The error message
+# $2 = The exit code of the shell; defaults to 1
 function error {
   echo -e "\x1b[31mYona Error: $1\x1b[0m" >&2
-  return 2
+  exit ${2:-1}
 }
 
 # Get file extension, name, name part, & parent directory
@@ -87,14 +92,13 @@ function yona_taskrunner {
 }
 
 function get_project_root {
-  PROJECT_ROOT=
   local start_dir=$PWD
   local dir
   for tr in ${TASK_RUNNERS[@]}; do
     dir=$start_dir
     eval "tr_$tr"
     while [[ $dir != / ]]; do
-      if [[ -a $dir/$TR_FILE ]]; then
+      if [[ -e $dir/$TR_FILE ]]; then # TODO: make this search case insensitive
         PROJECT_ROOT=$dir
         return
       else
@@ -102,15 +106,12 @@ function get_project_root {
       fi
     done
   done
-  PROJECT_ROOT=$(git rev-parse --show-toplevel)
-  if [[ -z $PROJECT_ROOT ]]; then
-    PROJECT_ROOT=$start_dir
-  fi
+  error 'No task runner files found. Are you in a project?'
 }
-
+  
 function get_size {
   get_project_root
-  cd $PROJECT_ROOT
+  cd "$PROJECT_ROOT"
   if [[ -n $1 ]]; then
     find -type f -name "*.$1" | xargs wc -l
   elif git status 2>&1 >/dev/null; then
@@ -122,7 +123,7 @@ function get_size {
 
 function shell_cmd {
   get_project_root
-  cd $PROJECT_ROOT
+  cd "$PROJECT_ROOT"
   eval "$1"
 }
 
