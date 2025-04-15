@@ -112,7 +112,7 @@ function helper_npmfile {
   "main": "index.js",
   "scripts": {
     "npmCommand": "pwd",
-  "build": "echo '${1}'",
+    "build": "echo '${1}'",
     "test": "echo tests!"
   },
   "keywords": [],
@@ -246,9 +246,9 @@ function test_list {
   helper_npmfile '-' ./deep/project
   helper_dotyonafile '-' ./deep
   cd deep/project
-  assert_output "$YONA --list | sed -n '/^[^;]\\+;/p'" 'yona; ../.yona
-make; ../Makefile
-pnpm; package.json'
+  assert_output "$YONA --list | sed -n '/^[^-[:blank:]]\\+ - /p'" 'yona - ../.yona
+make - ../Makefile
+pnpm - package.json'
 }
 
 function test_tr_priority {
@@ -262,8 +262,10 @@ function test_tr_priority {
   helper_dotyonafile "$dotyona_msg" .
   cd deep/project
   assert_output "$YONA build" "$dotyona_msg"
-  assert_output "$YONA --task-runner npm build" "$npm_msg"
-  assert_output "$YONA makeCommand" "$start_dir/deep"
+  assert_output \
+    "$YONA --task-runner pnpm build | sed '/^[[:blank:]]*$/d;/^>/d'" \
+    "$npm_msg"
+  assert_run "$YONA makeCommand | grep '^$start_dir/deep'"
 }
 
 function test_project_root {

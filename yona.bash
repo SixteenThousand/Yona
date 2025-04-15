@@ -86,19 +86,15 @@ function compile_file {
 	fi
 }
 
-function yona_taskrunner {
-  source .yona
-  eval "$1"
-}
-
 function get_project_root {
   local start_dir=$PWD
   local dir
-  for tr in ${TASK_RUNNERS[@]}; do
+  for tr_name in ${TASK_RUNNERS[@]}; do
     dir=$start_dir
-    eval "tr_$tr"
+    eval "tr_set_$tr_name"
     while [[ $dir != / ]]; do
-      if [[ -e $dir/$TR_FILE ]]; then # TODO: make this search case insensitive
+      local task_file=$(cd "$dir" && tr_file 2>/dev/null)
+      if [[ -n $task_file ]]; then
         PROJECT_ROOT=$dir
         return
       else
@@ -131,30 +127,23 @@ function project_setup {
   echo "TODO"
 }
 
-function process_tr_vars {
-  TR_TESTCMD=${TR_TESTCMD/\%t/$1}
-  TR_TESTCMD=${TR_TESTCMD/\%f/$TR_FILE}
-  TR_LISTCMD=${TR_LISTCMD/\%t/$1}
-  TR_LISTCMD=${TR_LISTCMD/\%f/$TR_FILE}
-}
-
 function list_tasks {
   local start_dir=$PWD
   local dir
   local path
-  for tr in ${TASK_RUNNERS[@]}; do
+  for tr_name in ${TASK_RUNNERS[@]}; do
     dir=$start_dir
-    eval "tr_$tr"
-    process_tr_vars $1
+    eval "tr_set_$tr_name"
     while [[ $dir != / ]]; do
-      path=$dir/$TR_FILE
-      if [[ -e $path ]]; then
-        local header="$tr; $(realpath --relative-to=${start_dir} ${path})"
+      local task_file=$(cd "$dir" && tr_file 2>/dev/null)
+      if [[ -n $task_file ]]; then
+        local task_file_path=$(realpath --relative-to=${start_dir} ${dir}/${task_file})
+        local header="${tr_name} - ${task_file_path}"
         # Note the ANSI sequences need to be reset for each line for less
         printf "\x1b[1;36m${header}\n\x1b[1;36m"
         printf '*%.0s' $(seq ${#header})
         printf '\x1b[0m\n'
-        eval "$TR_LISTCMD"
+        cd "$dir" && tr_list "$task_file" && cd "$start_dir"
         break
       fi
       dir=$(dirname $dir)
@@ -163,20 +152,23 @@ function list_tasks {
 }
 
 function run_task {
+  local task=$1
   local start_dir=$PWD
   local dir
   local path
-  for tr in ${TASK_RUNNERS[@]}; do
+  for tr_name in ${TASK_RUNNERS[@]}; do
     dir=$start_dir
-    eval "tr_$tr"
-    process_tr_vars $1
+    eval "tr_set_$tr_name"
     while [[ $dir != / ]]; do
-      if [[ -a $dir/$TR_FILE ]]; then
-        cd $dir
-        if eval "${TR_TESTCMD} $1" 2>&1 >/dev/null; then
-          eval "${TR_RUNCMD} $1"
+      local task_file=$(cd "$dir" && tr_file 2>/dev/null)
+      if [[ -n $task_file ]]; then
+        cd "$dir"
+        if tr_hastask "$task" "$task_file" 2>&1 >/dev/null; then
+          tr_run "$task"
           return
         fi
+        cd "$start_dir"
+        break
       fi
       dir=$(dirname $dir)
     done
@@ -219,7 +211,7 @@ function yona_cmd {
       return
       ;;
     *)
-      run_task "$2"
+      run_task "$1"
       return
       ;;
   esac
