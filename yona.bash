@@ -148,12 +148,14 @@ function list_tasks {
     process_tr_vars $1
     while [[ $dir != / ]]; do
       path=$dir/$TR_FILE
-      if [[ -a $path ]]; then
-        echo -e "\x1b[1;36m${path}"
-        printf '\x1b[36m'
-        printf '=%.0s' $(seq ${#path})
+      if [[ -e $path ]]; then
+        local header="$tr; $(realpath --relative-to=${start_dir} ${path})"
+        # Note the ANSI sequences need to be reset for each line for less
+        printf "\x1b[1;36m${header}\n\x1b[1;36m"
+        printf '*%.0s' $(seq ${#header})
         printf '\x1b[0m\n'
         eval "$TR_LISTCMD"
+        break
       fi
       dir=$(dirname $dir)
     done
@@ -246,7 +248,7 @@ if [[ $cmd = '-v' || $cmd = '--version' ]]; then
 fi
 
 # check if we're actually connected to a terminal
-if tty 2>&1 >/dev/null; then
+if [[ -t 1 ]]; then
   if [[ -z $NOPAGER ]]; then
     yona_cmd $cmd $arg 2>&1 | less -R
   else

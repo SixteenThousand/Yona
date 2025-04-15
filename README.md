@@ -33,6 +33,7 @@ Currently the used utilities are:
     - find
     - grep
     - m4 (only needed for building)
+    - realpath
 
 To install Yona, clone this repository and run `make build`. This will 
 combine all the bash scripts here into one, executable, script that you can 

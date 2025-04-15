@@ -248,7 +248,7 @@ function test_list {
   cd deep/project
   assert_output "$YONA --list | sed -n '/^[^;]\\+;/p'" 'yona; ../.yona
 make; ../Makefile
-npm; package.json'
+pnpm; package.json'
 }
 
 function test_tr_priority {
