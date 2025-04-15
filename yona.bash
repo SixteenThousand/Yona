@@ -220,7 +220,7 @@ function yona_cmd {
 # get options and command
 while [[ $# -gt 0 ]]; do
   case $1 in
-    -n|--no-pager) NOPAGER=1;;
+    -p|--pager) PAGER=1;;
     -t|--task-runner)
       TASK_RUNNERS=( $2 )
       shift
@@ -234,14 +234,10 @@ while [[ $# -gt 0 ]]; do
   esac
   shift
 done
-# This was the only way. Belive me.
-if [[ $cmd = '-v' || $cmd = '--version' ]]; then
-  NOPAGER=1
-fi
 
 # check if we're actually connected to a terminal
 if [[ -t 1 ]]; then
-  if [[ -z $NOPAGER ]]; then
+  if [[ -n $PAGER ]]; then
     yona_cmd $cmd $arg 2>&1 | less -R
   else
     yona_cmd $cmd $arg

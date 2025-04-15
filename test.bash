@@ -158,7 +158,7 @@ int main() {
     printf("${msg}");
 }
 EOF
-  $YONA --compile "$file" -n >/dev/null
+  $YONA --compile "$file" >/dev/null
   local exe="${file%.c}"
   assert -x "$exe"
   assert_output "$exe" "$msg"
@@ -284,7 +284,7 @@ function test_project_root {
 
 ## Now to actually run all these lovely tests...
 # with a little setup of course
-export YONA="${PWD}/yona --no-pager"
+export YONA="${PWD}/yona"
 # Uncomment this line and put the names of the tests you want to run in the
 # brackets. This is how you skip tests
 # declare -xa TESTS=()

@@ -50,8 +50,8 @@ This script does 2 things:
       Print version information
     
    [33mOptions[0m
-     [34m-n|--no-pager[0m
-       Do not page output with less.
+     [34m-p|--pager[0m
+       Page output with less.
      [34m-t|--task-runner TASK_RUNNER[0m
        Limit search for task runner files/project commands/project root to 
        TASK_RUNNER.
