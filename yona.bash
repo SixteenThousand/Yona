@@ -123,10 +123,6 @@ function shell_cmd {
   eval "$1"
 }
 
-function project_setup {
-  echo "TODO"
-}
-
 function list_tasks {
   local start_dir=$PWD
   local dir
@@ -192,10 +188,6 @@ function yona_cmd {
       ;;
     -s|--shell)
       shell_cmd "$2"
-      return
-      ;;
-    --setup)
-      project_setup "$2"
       return
       ;;
     --size)

@@ -35,8 +35,6 @@ This script does 2 things:
       It will [3mnot[0m try to compile the file.
     [34myona -s|--shell SHELL_COMMAND[0m
       Run the bash/sh  command SHELL_COMMAND in project root.
-    [34myona --setup SETUP_COMMAND[0m
-      Do various annoying things.
     [34myona --size EXTENSION[0m
       Count the number of lines in the current project.
        - With EXTENSION, counts lines only in files that have extension 
