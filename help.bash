@@ -75,5 +75,15 @@ This script does 2 things:
      Yona currently supports these task runners, ordered from highest 
      priority to least:
         $(echo ${TASK_RUNNERS[@]} | sed 's/ /\n        /g')
+
+   [33mLegal Notice[0m
+     This program is licensed under the GNU Public Licence, version 3. It  
+     comes with ABSOLUTELY NO WARRANTY. This is free software, and you are 
+     welcome to redistribute it under certain conditions.
+
+     See https://www/gnu.org/licenses/ for details of the warranty and the 
+     redistribution conditions. You should also have received a full copy of 
+     the license, containing those details, with the source code of the 
+     program, in a 'LICENSE' file.
 EOF
 }
